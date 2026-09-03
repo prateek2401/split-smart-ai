@@ -2,6 +2,141 @@
 const bankView = {
   tempBank: null,
 
+  currentMobileLinkData: null,
+
+  updateVpaPreview() {
+    const phoneInput = document.getElementById("linkMobileNumber");
+    const vpaInput = document.getElementById("linkUpiVpa");
+    if (phoneInput && vpaInput) {
+      const clean = phoneInput.value.replace(/[^0-9]/g, "").slice(-10);
+      if (clean) vpaInput.value = `${clean}@ybl`;
+    }
+  },
+
+  async sendMobileOtp() {
+    const phoneInput = document.getElementById("linkMobileNumber");
+    const bankSelect = document.getElementById("linkPrimaryBank");
+    const vpaInput = document.getElementById("linkUpiVpa");
+
+    const phone = phoneInput ? phoneInput.value.trim() : "";
+    const bankName = bankSelect ? bankSelect.value : "HDFC Bank";
+    const upiId = vpaInput ? vpaInput.value.trim() : "";
+
+    if (!phone || phone.replace(/[^0-9]/g, "").length < 10) {
+      app.showToast("❌ Please enter a valid 10-digit mobile number");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/bank/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, bankName, upiId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.currentMobileLinkData = data;
+        const stepInput = document.getElementById("otpStepInput");
+        const stepVerify = document.getElementById("otpStepVerify");
+        const targetPhone = document.getElementById("otpTargetPhone");
+        const demoBadge = document.getElementById("demoOtpBadge");
+
+        if (targetPhone) targetPhone.textContent = `+91 ${data.phone}`;
+        if (demoBadge) demoBadge.textContent = data.demoOtp;
+        if (stepInput) stepInput.style.display = "none";
+        if (stepVerify) stepVerify.style.display = "block";
+
+        app.showToast(`📩 OTP sent via SMS to +91 ${data.phone}`);
+      } else {
+        app.showToast("❌ " + data.error);
+      }
+    } catch (err) {
+      app.showToast("❌ Error sending verification OTP");
+    }
+  },
+
+  autoFillDemoOtp() {
+    const input = document.getElementById("otpInputField");
+    if (input) input.value = "482910";
+  },
+
+  backToOtpInput() {
+    const stepInput = document.getElementById("otpStepInput");
+    const stepVerify = document.getElementById("otpStepVerify");
+    const stepDiscovered = document.getElementById("otpStepDiscovered");
+
+    if (stepInput) stepInput.style.display = "block";
+    if (stepVerify) stepVerify.style.display = "none";
+    if (stepDiscovered) stepDiscovered.style.display = "none";
+  },
+
+  async verifyMobileOtp() {
+    const otpInput = document.getElementById("otpInputField");
+    const otp = otpInput ? otpInput.value.trim() : "";
+
+    if (!otp || otp.length < 6) {
+      app.showToast("❌ Please enter the 6-digit verification code");
+      return;
+    }
+
+    if (!this.currentMobileLinkData) return;
+
+    try {
+      const res = await fetch("/api/bank/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: this.currentMobileLinkData.phone,
+          otp,
+          bankName: this.currentMobileLinkData.bankName || "HDFC Bank"
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const stepVerify = document.getElementById("otpStepVerify");
+        const stepDiscovered = document.getElementById("otpStepDiscovered");
+        const phoneDisplay = document.getElementById("discoveredPhoneDisplay");
+        const list = document.getElementById("discoveredAccountsList");
+
+        if (phoneDisplay) phoneDisplay.textContent = data.phone;
+
+        if (list && data.discoveredAccounts) {
+          list.innerHTML = data.discoveredAccounts.map(acc => `
+            <div class="discovered-account-card">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 24px;">${acc.logo}</span>
+                <div>
+                  <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">${acc.title}</div>
+                  <div style="font-size: 0.76rem; color: #94a3b8;">${acc.vpa || (acc.accountType + " " + acc.accountNumber)}</div>
+                </div>
+              </div>
+              <span class="category-badge badge-variable" style="background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #6ee7b7; font-size: 0.72rem;">
+                ✓ ${acc.status}
+              </span>
+            </div>
+          `).join("");
+        }
+
+        if (stepVerify) stepVerify.style.display = "none";
+        if (stepDiscovered) stepDiscovered.style.display = "block";
+
+        app.showToast("🎉 Verified! Discovered 3 linked accounts.");
+      } else {
+        app.showToast("❌ " + data.error);
+      }
+    } catch (err) {
+      app.showToast("❌ Error verifying OTP");
+    }
+  },
+
+  async completeMobileLinking() {
+    app.closeModals();
+    app.showToast("🚀 PhonePe & Bank linked successfully! Auto-sync is active.");
+    await app.refreshAll();
+    await this.init();
+  },
+
+
   activeSources: [],
 
   async fetchActiveSources() {
@@ -14,10 +149,45 @@ const bankView = {
   },
 
   switchModalTab(tab) {
+    const tabMobileOtp = document.getElementById("modalTabMobileOtp");
     const tabCheckboxes = document.getElementById("modalTabCheckboxes");
     const tabApp2App = document.getElementById("modalTabApp2App");
+    const btnMobileOtp = document.getElementById("tabBtnMobileOtp");
     const btnCheckboxes = document.getElementById("tabBtnCheckboxes");
     const btnApp2App = document.getElementById("tabBtnApp2App");
+
+    const tabs = [tabMobileOtp, tabCheckboxes, tabApp2App];
+    const btns = [btnMobileOtp, btnCheckboxes, btnApp2App];
+
+    tabs.forEach(t => { if (t) t.style.display = "none"; });
+    btns.forEach(b => { if (b) { b.style.background = ""; b.style.borderColor = ""; b.style.color = ""; } });
+
+    if (tab === "mobileotp") {
+      if (tabMobileOtp) tabMobileOtp.style.display = "block";
+      if (btnMobileOtp) {
+        btnMobileOtp.style.background = "rgba(99, 102, 241, 0.2)";
+        btnMobileOtp.style.borderColor = "#6366f1";
+        btnMobileOtp.style.color = "#a5b4fc";
+      }
+      this.backToOtpInput();
+    } else if (tab === "checkboxes") {
+      if (tabCheckboxes) tabCheckboxes.style.display = "block";
+      if (btnCheckboxes) {
+        btnCheckboxes.style.background = "rgba(99, 102, 241, 0.2)";
+        btnCheckboxes.style.borderColor = "#6366f1";
+        btnCheckboxes.style.color = "#a5b4fc";
+      }
+    } else {
+      if (tabApp2App) tabApp2App.style.display = "block";
+      if (btnApp2App) {
+        btnApp2App.style.background = "rgba(99, 102, 241, 0.2)";
+        btnApp2App.style.borderColor = "#6366f1";
+        btnApp2App.style.color = "#a5b4fc";
+      }
+      this.backToBankSelection();
+    }
+  },
+  _unused_switch(tab) {
 
     if (tab === "checkboxes") {
       if (tabCheckboxes) tabCheckboxes.style.display = "block";

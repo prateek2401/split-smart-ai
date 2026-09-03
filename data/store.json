@@ -8,7 +8,10 @@
     "currencyCode": "INR",
     "authProvider": "GOOGLE",
     "hasCompletedOnboarding": false,
-    "createdAt": "2026-09-03T03:52:03.490Z"
+    "createdAt": "2026-09-03T03:52:03.490Z",
+    "phone": "+91 9876543210",
+    "upiId": "9876543210@ybl",
+    "linkedBank": "HDFC Bank ••••3210"
   },
   "monthlyBudget": {
     "month": "2026-09",
@@ -435,6 +438,14 @@
   ],
   "pendingBankTransactions": [],
   "notifications": [
+    {
+      "id": "notif-1788411366565",
+      "title": "📱 PhonePe & HDFC Bank Linked (+91 9876543210)",
+      "message": "Mobile number verified via SMS OTP. Linked PhonePe VPA (9876543210@ybl) and HDFC Bank A/C ••••3210 for real-time debit monitoring.",
+      "timestamp": "2026-09-03T04:56:06.565Z",
+      "type": "PHONEPE_LINKED",
+      "targetGroup": "All Accounts"
+    },
     {
       "id": "notif-1788410690094",
       "title": "⚙️ Payment Modes & Banks Updated",

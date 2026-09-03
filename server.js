@@ -243,6 +243,31 @@ app.post("/api/bank/webhook", (req, res) => {
 // Bank Connection & App-to-App Linking Endpoints
 
 // Payment Modes & Banks Checkbox Configuration Endpoints
+
+// PhonePe & Bank Mobile OTP Verification Endpoints
+app.post("/api/bank/send-otp", (req, res) => {
+  try {
+    const { phone, bankName, upiId } = req.body;
+    const result = bankService.sendMobileOtp({ phone, bankName, upiId });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/bank/verify-otp", (req, res) => {
+  try {
+    const { phone, otp, bankName } = req.body;
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, error: "Mobile number and OTP required" });
+    }
+    const result = bankService.verifyOtpAndDiscoverAccounts({ phone, otp, bankName });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
 app.get("/api/bank/sources", (req, res) => {
   try {
     const sources = bankService.getPaymentSources();

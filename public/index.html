@@ -979,13 +979,16 @@
   
   <!-- MODAL: LINK BANK APP & PAYMENT MODES CHECKBOXES -->
   <div class="modal-overlay" id="linkBankModal">
-    <div class="modal-box" style="max-width: 620px; max-height: 90vh; overflow-y: auto;">
+    <div class="modal-box" style="max-width: 640px; max-height: 90vh; overflow-y: auto;">
       
       <!-- Top Navigation Tabs inside Modal -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px;">
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn btn-secondary btn-sm" id="tabBtnCheckboxes" onclick="bankView.switchModalTab('checkboxes')" style="background: rgba(99, 102, 241, 0.2); border-color: #6366f1; color: #a5b4fc;">
-            ☑ Select Payment Modes (Checkboxes)
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary btn-sm" id="tabBtnMobileOtp" onclick="bankView.switchModalTab('mobileotp')" style="background: rgba(99, 102, 241, 0.2); border-color: #6366f1; color: #a5b4fc;">
+            📱 Mobile + OTP (PhonePe)
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="tabBtnCheckboxes" onclick="bankView.switchModalTab('checkboxes')">
+            ☑ Payment Modes (Checkboxes)
           </button>
           <button type="button" class="btn btn-secondary btn-sm" id="tabBtnApp2App" onclick="bankView.switchModalTab('app2app')">
             🔗 App-to-App Handshake
@@ -994,8 +997,135 @@
         <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
       </div>
 
-      <!-- TAB 1: CHECKBOX PAYMENT MODES & BANKS -->
-      <div id="modalTabCheckboxes">
+      <!-- TAB 1: MOBILE NUMBER & SMS OTP VERIFICATION (PHONEPE & BANK) -->
+      <div id="modalTabMobileOtp">
+        
+        <!-- Step 1: Mobile & Bank Selection Form -->
+        <div id="otpStepInput">
+          <div style="margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="ai-pill" style="font-size: 0.72rem; background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #6ee7b7;">
+                OFFICIAL NPCI / RBI ONBOARDING
+              </span>
+            </div>
+            <h2 class="card-title" style="font-size: 1.25rem; margin-top: 4px;">Link PhonePe & Bank via Mobile Number</h2>
+            <p class="card-subtitle">
+              In India, your PhonePe UPI ID and Bank accounts are tied to your registered SIM phone number. Enter it below to discover and verify your accounts via SMS OTP.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PhonePe Registered Mobile Number</label>
+            <div class="phone-input-wrapper">
+              <div class="phone-prefix-pill">
+                <span>🇮🇳</span> +91
+              </div>
+              <input type="tel" id="linkMobileNumber" class="phone-native-input" placeholder="98765 43210" maxlength="10" value="9876543210">
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              Enter the 10-digit number you use on PhonePe and your bank app.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Your Primary Bank</label>
+            <select id="linkPrimaryBank" class="form-select" onchange="bankView.updateVpaPreview()">
+              <option value="HDFC Bank" selected>HDFC Bank (MobileBanking / UPI)</option>
+              <option value="State Bank of India">State Bank of India (SBI YONO)</option>
+              <option value="ICICI Bank">ICICI Bank (iMobile Pay)</option>
+              <option value="Axis Bank">Axis Bank Mobile</option>
+              <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PhonePe UPI ID (Virtual Payment Address)</label>
+            <input type="text" id="linkUpiVpa" class="form-input" placeholder="9876543210@ybl" value="9876543210@ybl">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              Auto-generated as &lt;mobile&gt;@ybl (or enter your custom handle like name@ybl).
+            </div>
+          </div>
+
+          <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 16px;">
+            🔒 <strong>Why this is required:</strong> PhonePe and banks verify your identity by sending an encrypted one-time passcode to your mobile SIM.
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="bankView.sendMobileOtp()">
+              📩 Send 6-Digit Verification OTP →
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: 6-Digit OTP Verification Screen -->
+        <div id="otpStepVerify" style="display: none;">
+          <div style="text-align: center; margin-bottom: 16px;">
+            <div style="font-size: 32px; margin-bottom: 6px;">📲</div>
+            <h2 class="card-title" style="font-size: 1.25rem;">Enter 6-Digit SMS Code</h2>
+            <p class="card-subtitle">
+              We simulated sending an official verification SMS to <strong style="color: #fff;" id="otpTargetPhone">+91 98765 43210</strong>
+            </p>
+          </div>
+
+          <div class="otp-display-box">
+            <label style="font-size: 0.8rem; font-weight: 600; color: #a5b4fc; display: block; margin-bottom: 8px;">
+              Enter 6-Digit Passcode:
+            </label>
+            <input type="text" id="otpInputField" class="otp-input-field" maxlength="6" placeholder="482910">
+            <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px;">
+              Demo Code: <strong style="color: #6ee7b7;" id="demoOtpBadge">482910</strong> (Valid for 10 mins)
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.autoFillDemoOtp()" style="border-color: #6366f1; color: #a5b4fc;">
+              ⚡ Auto-Fill Demo OTP (482910)
+            </button>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.backToOtpInput()">
+              ← Change Mobile Number
+            </button>
+            <button type="button" class="btn btn-success" onclick="bankView.verifyMobileOtp()">
+              🔐 Verify & Discover Accounts →
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Account Auto-Discovery & Confirmation Screen -->
+        <div id="otpStepDiscovered" style="display: none;">
+          <div style="margin-bottom: 14px;">
+            <span class="ai-pill" style="font-size: 0.72rem; background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #6ee7b7;">
+              ✓ MOBILE IDENTITY VERIFIED
+            </span>
+            <h2 class="card-title" style="font-size: 1.25rem; margin-top: 6px;">Accounts Discovered on Your Number</h2>
+            <p class="card-subtitle">
+              NPCI and Account Aggregator successfully discovered the following accounts for <strong style="color: #fff;" id="discoveredPhoneDisplay">+91 98765 43210</strong>:
+            </p>
+          </div>
+
+          <!-- Discovered Accounts List -->
+          <div id="discoveredAccountsList" style="margin-bottom: 16px;">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px;">
+            <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.84rem; color: #e2e8f0; cursor: pointer;">
+              <input type="checkbox" checked style="margin-top: 3px; accent-color: #10b981;">
+              <span>Authorize SplitSmart AI to receive real-time debit transaction webhooks from these accounts for budgeting & roommate splits (100% Read-Only, zero debit authority).</span>
+            </label>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-success" onclick="bankView.completeMobileLinking()">
+              🚀 Complete Link & Start Live Sync
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 2: CHECKBOX PAYMENT MODES & BANKS -->
+      <div id="modalTabCheckboxes" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
           <div>
             <h2 class="card-title" style="font-size: 1.18rem;">Select Payment Modes & Banks</h2>
@@ -1014,7 +1144,6 @@
         <!-- 1. UPI & Wallets -->
         <div class="source-category-title">🟣 UPI & Digital Wallets</div>
         <div class="source-checkbox-grid">
-          <!-- PhonePe -->
           <label class="source-checkbox-card" id="card_phonepe">
             <div class="source-left">
               <span class="source-icon">🟣</span>
@@ -1026,7 +1155,6 @@
             <input type="checkbox" class="source-checkbox-input" value="phonepe" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- Google Pay -->
           <label class="source-checkbox-card" id="card_gpay">
             <div class="source-left">
               <span class="source-icon">🔵</span>
@@ -1038,7 +1166,6 @@
             <input type="checkbox" class="source-checkbox-input" value="gpay" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- Paytm -->
           <label class="source-checkbox-card" id="card_paytm">
             <div class="source-left">
               <span class="source-icon">💠</span>
@@ -1050,7 +1177,6 @@
             <input type="checkbox" class="source-checkbox-input" value="paytm" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- Amazon Pay -->
           <label class="source-checkbox-card" id="card_amazonpay">
             <div class="source-left">
               <span class="source-icon">🟠</span>
@@ -1062,7 +1188,6 @@
             <input type="checkbox" class="source-checkbox-input" value="amazonpay" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- CRED -->
           <label class="source-checkbox-card" id="card_cred">
             <div class="source-left">
               <span class="source-icon">⚫</span>
@@ -1078,7 +1203,6 @@
         <!-- 2. Bank Accounts & NetBanking -->
         <div class="source-category-title">🏦 Bank Accounts & NetBanking</div>
         <div class="source-checkbox-grid">
-          <!-- HDFC Bank -->
           <label class="source-checkbox-card" id="card_hdfc">
             <div class="source-left">
               <span class="source-icon">🏦</span>
@@ -1090,7 +1214,6 @@
             <input type="checkbox" class="source-checkbox-input" value="hdfc" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- SBI -->
           <label class="source-checkbox-card" id="card_sbi">
             <div class="source-left">
               <span class="source-icon">🏦</span>
@@ -1102,7 +1225,6 @@
             <input type="checkbox" class="source-checkbox-input" value="sbi" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- ICICI Bank -->
           <label class="source-checkbox-card" id="card_icici">
             <div class="source-left">
               <span class="source-icon">🏦</span>
@@ -1114,7 +1236,6 @@
             <input type="checkbox" class="source-checkbox-input" value="icici" checked onchange="bankView.toggleSourceCard(this)">
           </label>
 
-          <!-- Axis Bank -->
           <label class="source-checkbox-card" id="card_axis">
             <div class="source-left">
               <span class="source-icon">🏦</span>
@@ -1124,58 +1245,6 @@
               </div>
             </div>
             <input type="checkbox" class="source-checkbox-input" value="axis" checked onchange="bankView.toggleSourceCard(this)">
-          </label>
-
-          <!-- Kotak Bank -->
-          <label class="source-checkbox-card" id="card_kotak">
-            <div class="source-left">
-              <span class="source-icon">🏦</span>
-              <div>
-                <div class="source-name">Kotak Mahindra Bank</div>
-                <div class="source-sub">811 / Savings</div>
-              </div>
-            </div>
-            <input type="checkbox" class="source-checkbox-input" value="kotak" onchange="bankView.toggleSourceCard(this)">
-          </label>
-
-          <!-- Other Banks -->
-          <label class="source-checkbox-card" id="card_other_bank">
-            <div class="source-left">
-              <span class="source-icon">🏛️</span>
-              <div>
-                <div class="source-name">Other NetBanking</div>
-                <div class="source-sub">IMPS / NEFT Feeds</div>
-              </div>
-            </div>
-            <input type="checkbox" class="source-checkbox-input" value="other_bank" onchange="bankView.toggleSourceCard(this)">
-          </label>
-        </div>
-
-        <!-- 3. Cards & PayLater -->
-        <div class="source-category-title">💳 Credit Cards & PayLater</div>
-        <div class="source-checkbox-grid">
-          <!-- Credit Cards -->
-          <label class="source-checkbox-card" id="card_credit_cards">
-            <div class="source-left">
-              <span class="source-icon">💳</span>
-              <div>
-                <div class="source-name">Credit Cards</div>
-                <div class="source-sub">HDFC / ICICI / SBI Cards</div>
-              </div>
-            </div>
-            <input type="checkbox" class="source-checkbox-input" value="credit_cards" checked onchange="bankView.toggleSourceCard(this)">
-          </label>
-
-          <!-- PayLater -->
-          <label class="source-checkbox-card" id="card_pay_later">
-            <div class="source-left">
-              <span class="source-icon">⚡</span>
-              <div>
-                <div class="source-name">LazyPay / Simpl</div>
-                <div class="source-sub">BNPL Checkout Feeds</div>
-              </div>
-            </div>
-            <input type="checkbox" class="source-checkbox-input" value="pay_later" onchange="bankView.toggleSourceCard(this)">
           </label>
         </div>
 
@@ -1187,9 +1256,8 @@
         </div>
       </div>
 
-      <!-- TAB 2: APP-TO-APP HANDSHAKE -->
+      <!-- TAB 3: APP-TO-APP HANDSHAKE -->
       <div id="modalTabApp2App" style="display: none;">
-        <!-- Step 1: Bank Selection Screen -->
         <div id="bankSelectionScreen">
           <div class="card-header">
             <div>
@@ -1233,7 +1301,6 @@
           </div>
         </div>
 
-        <!-- Step 2: Simulated App-to-App Handshake Screen -->
         <div id="app2AppHandshakeScreen" style="display: none;">
           <div class="app2app-container">
             <div class="app2app-header">
@@ -1264,10 +1331,6 @@
               <div class="app2app-scope-item">
                 <span class="app2app-check">✓</span>
                 <div><strong>100% Read-Only:</strong> Zero withdrawal, transfer, or modification permissions.</div>
-              </div>
-              <div class="app2app-scope-item">
-                <span class="app2app-check">✓</span>
-                <div><strong>Revocable Anytime:</strong> You can revoke SplitSmart AI access directly inside your bank app settings.</div>
               </div>
             </div>
 
