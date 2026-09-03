@@ -436,6 +436,14 @@
   "pendingBankTransactions": [],
   "notifications": [
     {
+      "id": "notif-1788410642129",
+      "title": "⚙️ Payment Modes & Banks Updated",
+      "message": "Active auto-sync monitoring enabled for 10 payment sources.",
+      "timestamp": "2026-09-03T04:44:02.129Z",
+      "type": "PAYMENT_SOURCES_UPDATED",
+      "targetGroup": "Sync Settings"
+    },
+    {
       "id": "notif-1788410431756",
       "title": "🏦 HDFC Bank Connected Successfully",
       "message": "Authorized read-only feed for Savings Account (••4829) via App-to-App deep link. Consent ID: HDFCBANK_AA_759773.",
@@ -725,5 +733,17 @@
       "connectedAt": "2026-09-03T10:00:00Z",
       "lastSyncedAt": "2026-09-03T04:38:11.441Z"
     }
+  ],
+  "activePaymentSources": [
+    "phonepe",
+    "gpay",
+    "paytm",
+    "amazonpay",
+    "cred",
+    "hdfc",
+    "sbi",
+    "icici",
+    "axis",
+    "credit_cards"
   ]
 }

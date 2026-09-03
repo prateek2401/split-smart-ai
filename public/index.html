@@ -977,108 +977,304 @@
   </div>
 
   
-  <!-- MODAL: LINK BANK APP & APP-TO-APP HANDSHAKE -->
+  <!-- MODAL: LINK BANK APP & PAYMENT MODES CHECKBOXES -->
   <div class="modal-overlay" id="linkBankModal">
-    <div class="modal-box" style="max-width: 580px;">
+    <div class="modal-box" style="max-width: 620px; max-height: 90vh; overflow-y: auto;">
       
-      <!-- Step 1: Bank Selection Screen -->
-      <div id="bankSelectionScreen">
-        <div class="card-header">
+      <!-- Top Navigation Tabs inside Modal -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="tabBtnCheckboxes" onclick="bankView.switchModalTab('checkboxes')" style="background: rgba(99, 102, 241, 0.2); border-color: #6366f1; color: #a5b4fc;">
+            ☑ Select Payment Modes (Checkboxes)
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="tabBtnApp2App" onclick="bankView.switchModalTab('app2app')">
+            🔗 App-to-App Handshake
+          </button>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <!-- TAB 1: CHECKBOX PAYMENT MODES & BANKS -->
+      <div id="modalTabCheckboxes">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
           <div>
-            <h2 class="card-title">🏦 Link Bank App (App2App Deep Link)</h2>
-            <p class="card-subtitle">Connect your bank to automatically sync PhonePe, Paytm & card transactions.</p>
+            <h2 class="card-title" style="font-size: 1.18rem;">Select Payment Modes & Banks</h2>
+            <p class="card-subtitle">Check all payment apps and bank accounts you want SplitSmart AI to automatically sync from.</p>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.selectAllSources(true)" style="font-size: 0.75rem; padding: 4px 10px;">
+              ✓ Select All
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.selectAllSources(false)" style="font-size: 0.75rem; padding: 4px 10px;">
+              ✕ Deselect All
+            </button>
+          </div>
         </div>
 
-        <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px;">
-          Choose your bank app to launch the secure <strong>App-to-App consent handshake</strong> on your device:
-        </div>
-
-        <div class="bank-selection-grid">
-          <!-- HDFC Bank -->
-          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('HDFC Bank', '••4829', 'Savings Account')">
-            <div class="bank-logo-box" style="color: #6366f1;">🏦</div>
-            <div>
-              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">HDFC Bank</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">MobileBanking App</div>
+        <!-- 1. UPI & Wallets -->
+        <div class="source-category-title">🟣 UPI & Digital Wallets</div>
+        <div class="source-checkbox-grid">
+          <!-- PhonePe -->
+          <label class="source-checkbox-card" id="card_phonepe">
+            <div class="source-left">
+              <span class="source-icon">🟣</span>
+              <div>
+                <div class="source-name">PhonePe</div>
+                <div class="source-sub">UPI, Wallet & QR</div>
+              </div>
             </div>
-          </div>
+            <input type="checkbox" class="source-checkbox-input" value="phonepe" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- Google Pay -->
+          <label class="source-checkbox-card" id="card_gpay">
+            <div class="source-left">
+              <span class="source-icon">🔵</span>
+              <div>
+                <div class="source-name">Google Pay (GPay)</div>
+                <div class="source-sub">UPI & Contacts Pay</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="gpay" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- Paytm -->
+          <label class="source-checkbox-card" id="card_paytm">
+            <div class="source-left">
+              <span class="source-icon">💠</span>
+              <div>
+                <div class="source-name">Paytm</div>
+                <div class="source-sub">UPI, Wallet & Postpaid</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="paytm" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- Amazon Pay -->
+          <label class="source-checkbox-card" id="card_amazonpay">
+            <div class="source-left">
+              <span class="source-icon">🟠</span>
+              <div>
+                <div class="source-name">Amazon Pay</div>
+                <div class="source-sub">UPI & Quick Balance</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="amazonpay" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- CRED -->
+          <label class="source-checkbox-card" id="card_cred">
+            <div class="source-left">
+              <span class="source-icon">⚫</span>
+              <div>
+                <div class="source-name">CRED Pay</div>
+                <div class="source-sub">UPI & Card Rewards</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="cred" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+        </div>
+
+        <!-- 2. Bank Accounts & NetBanking -->
+        <div class="source-category-title">🏦 Bank Accounts & NetBanking</div>
+        <div class="source-checkbox-grid">
+          <!-- HDFC Bank -->
+          <label class="source-checkbox-card" id="card_hdfc">
+            <div class="source-left">
+              <span class="source-icon">🏦</span>
+              <div>
+                <div class="source-name">HDFC Bank</div>
+                <div class="source-sub">Savings ••4829</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="hdfc" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- SBI -->
+          <label class="source-checkbox-card" id="card_sbi">
+            <div class="source-left">
+              <span class="source-icon">🏦</span>
+              <div>
+                <div class="source-name">State Bank of India</div>
+                <div class="source-sub">SBI YONO ••3319</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="sbi" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
 
           <!-- ICICI Bank -->
-          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('ICICI Bank', '••7102', 'Savings Account')">
-            <div class="bank-logo-box" style="color: #f59e0b;">🏦</div>
-            <div>
-              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">ICICI Bank</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">iMobile Pay App</div>
+          <label class="source-checkbox-card" id="card_icici">
+            <div class="source-left">
+              <span class="source-icon">🏦</span>
+              <div>
+                <div class="source-name">ICICI Bank</div>
+                <div class="source-sub">iMobile Pay ••7102</div>
+              </div>
             </div>
-          </div>
-
-          <!-- State Bank of India -->
-          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('State Bank of India (SBI)', '••3319', 'Savings Account')">
-            <div class="bank-logo-box" style="color: #06b6d4;">🏦</div>
-            <div>
-              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">State Bank of India</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">SBI YONO App</div>
-            </div>
-          </div>
+            <input type="checkbox" class="source-checkbox-input" value="icici" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
 
           <!-- Axis Bank -->
-          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('Axis Bank', '••8204', 'Salary Account')">
-            <div class="bank-logo-box" style="color: #ec4899;">🏦</div>
-            <div>
-              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Axis Bank</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Axis Mobile App</div>
+          <label class="source-checkbox-card" id="card_axis">
+            <div class="source-left">
+              <span class="source-icon">🏦</span>
+              <div>
+                <div class="source-name">Axis Bank</div>
+                <div class="source-sub">Salary Account ••8204</div>
+              </div>
             </div>
-          </div>
+            <input type="checkbox" class="source-checkbox-input" value="axis" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- Kotak Bank -->
+          <label class="source-checkbox-card" id="card_kotak">
+            <div class="source-left">
+              <span class="source-icon">🏦</span>
+              <div>
+                <div class="source-name">Kotak Mahindra Bank</div>
+                <div class="source-sub">811 / Savings</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="kotak" onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- Other Banks -->
+          <label class="source-checkbox-card" id="card_other_bank">
+            <div class="source-left">
+              <span class="source-icon">🏛️</span>
+              <div>
+                <div class="source-name">Other NetBanking</div>
+                <div class="source-sub">IMPS / NEFT Feeds</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="other_bank" onchange="bankView.toggleSourceCard(this)">
+          </label>
         </div>
 
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.8rem; color: var(--text-muted);">
-          🔒 <strong>100% Secure & Regulated:</strong> Authentication happens inside your official bank app using FaceID / Fingerprint / MPIN. SplitSmart AI receives read-only transaction feeds and cannot move funds.
+        <!-- 3. Cards & PayLater -->
+        <div class="source-category-title">💳 Credit Cards & PayLater</div>
+        <div class="source-checkbox-grid">
+          <!-- Credit Cards -->
+          <label class="source-checkbox-card" id="card_credit_cards">
+            <div class="source-left">
+              <span class="source-icon">💳</span>
+              <div>
+                <div class="source-name">Credit Cards</div>
+                <div class="source-sub">HDFC / ICICI / SBI Cards</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="credit_cards" checked onchange="bankView.toggleSourceCard(this)">
+          </label>
+
+          <!-- PayLater -->
+          <label class="source-checkbox-card" id="card_pay_later">
+            <div class="source-left">
+              <span class="source-icon">⚡</span>
+              <div>
+                <div class="source-name">LazyPay / Simpl</div>
+                <div class="source-sub">BNPL Checkout Feeds</div>
+              </div>
+            </div>
+            <input type="checkbox" class="source-checkbox-input" value="pay_later" onchange="bankView.toggleSourceCard(this)">
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="bankView.saveSelectedSources()">
+            💾 Save Active Payment Sources
+          </button>
         </div>
       </div>
 
-      <!-- Step 2: Simulated App-to-App Handshake Screen -->
-      <div id="app2AppHandshakeScreen" style="display: none;">
-        <div class="app2app-container">
-          <div class="app2app-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 24px;">📱</span>
+      <!-- TAB 2: APP-TO-APP HANDSHAKE -->
+      <div id="modalTabApp2App" style="display: none;">
+        <!-- Step 1: Bank Selection Screen -->
+        <div id="bankSelectionScreen">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🏦 Direct App-to-App Handshake</h2>
+              <p class="card-subtitle">Connect your bank mobile app directly via OS-level deep link.</p>
+            </div>
+          </div>
+
+          <div class="bank-selection-grid">
+            <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('HDFC Bank', '••4829', 'Savings Account')">
+              <div class="bank-logo-box" style="color: #6366f1;">🏦</div>
               <div>
-                <div style="font-weight: 700; font-size: 1rem; color: #fff;" id="handshakeBankTitle">HDFC Bank MobileBanking</div>
-                <div style="font-size: 0.76rem; color: #94a3b8;">Deep Link Handshake: <span id="handshakeUri">intent://consent#hdfc</span></div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">HDFC Bank</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">MobileBanking App</div>
               </div>
             </div>
-            <span class="app2app-badge">🟢 App Opened & Verified</span>
-          </div>
 
-          <div style="padding: 12px 16px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; margin-bottom: 16px;">
-            <div style="font-size: 0.86rem; font-weight: 600; color: #fff; margin-bottom: 4px;">
-              Official Bank Consent Request
+            <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('ICICI Bank', '••7102', 'Savings Account')">
+              <div class="bank-logo-box" style="color: #f59e0b;">🏦</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">ICICI Bank</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">iMobile Pay App</div>
+              </div>
             </div>
-            <div style="font-size: 0.8rem; color: #94a3b8;">
-              <strong style="color: #6ee7b7;">SplitSmart AI</strong> is requesting authorization for your <span id="handshakeAccountType">Savings Account</span> (<span id="handshakeAccountNum">••4829</span>).
+
+            <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('State Bank of India (SBI)', '••3319', 'Savings Account')">
+              <div class="bank-logo-box" style="color: #06b6d4;">🏦</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">State Bank of India</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">SBI YONO App</div>
+              </div>
+            </div>
+
+            <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('Axis Bank', '••8204', 'Salary Account')">
+              <div class="bank-logo-box" style="color: #ec4899;">🏦</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Axis Bank</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Axis Mobile App</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div style="margin-bottom: 18px;">
-            <div class="app2app-scope-item">
-              <span class="app2app-check">✓</span>
-              <div><strong>Sync Debit Transactions:</strong> Real-time feeds of UPI (PhonePe, Paytm), POS cards, and NetBanking.</div>
+        <!-- Step 2: Simulated App-to-App Handshake Screen -->
+        <div id="app2AppHandshakeScreen" style="display: none;">
+          <div class="app2app-container">
+            <div class="app2app-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">📱</span>
+                <div>
+                  <div style="font-weight: 700; font-size: 1rem; color: #fff;" id="handshakeBankTitle">HDFC Bank MobileBanking</div>
+                  <div style="font-size: 0.76rem; color: #94a3b8;">Deep Link Handshake: <span id="handshakeUri">intent://consent#hdfc</span></div>
+                </div>
+              </div>
+              <span class="app2app-badge">🟢 App Opened & Verified</span>
             </div>
-            <div class="app2app-scope-item">
-              <span class="app2app-check">✓</span>
-              <div><strong>100% Read-Only:</strong> Zero withdrawal, transfer, or modification permissions.</div>
-            </div>
-            <div class="app2app-scope-item">
-              <span class="app2app-check">✓</span>
-              <div><strong>Revocable Anytime:</strong> You can revoke SplitSmart AI access directly inside your bank app settings.</div>
-            </div>
-          </div>
 
-          <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.backToBankSelection()">✕ Reject</button>
-            <button type="button" class="btn btn-success btn-sm" onclick="bankView.confirmBankConnection()">✓ Authorize & Link Bank App</button>
+            <div style="padding: 12px 16px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; margin-bottom: 16px;">
+              <div style="font-size: 0.86rem; font-weight: 600; color: #fff; margin-bottom: 4px;">
+                Official Bank Consent Request
+              </div>
+              <div style="font-size: 0.8rem; color: #94a3b8;">
+                <strong style="color: #6ee7b7;">SplitSmart AI</strong> is requesting authorization for your <span id="handshakeAccountType">Savings Account</span> (<span id="handshakeAccountNum">••4829</span>).
+              </div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+              <div class="app2app-scope-item">
+                <span class="app2app-check">✓</span>
+                <div><strong>Sync Debit Transactions:</strong> Real-time feeds of UPI (PhonePe, Paytm), POS cards, and NetBanking.</div>
+              </div>
+              <div class="app2app-scope-item">
+                <span class="app2app-check">✓</span>
+                <div><strong>100% Read-Only:</strong> Zero withdrawal, transfer, or modification permissions.</div>
+              </div>
+              <div class="app2app-scope-item">
+                <span class="app2app-check">✓</span>
+                <div><strong>Revocable Anytime:</strong> You can revoke SplitSmart AI access directly inside your bank app settings.</div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.backToBankSelection()">✕ Reject</button>
+              <button type="button" class="btn btn-success btn-sm" onclick="bankView.confirmBankConnection()">✓ Authorize & Link Bank App</button>
+            </div>
           </div>
         </div>
       </div>

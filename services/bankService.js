@@ -337,7 +337,56 @@ function disconnectBank(bankId) {
 }
 
 
+
+const AVAILABLE_PAYMENT_SOURCES = [
+  // UPI & Wallets
+  { id: "phonepe", name: "PhonePe UPI & Wallet", type: "UPI", icon: "🟣", defaultChecked: true },
+  { id: "gpay", name: "Google Pay (GPay)", type: "UPI", icon: "🔵", defaultChecked: true },
+  { id: "paytm", name: "Paytm UPI & Wallet", type: "UPI", icon: "💠", defaultChecked: true },
+  { id: "amazonpay", name: "Amazon Pay UPI", type: "UPI", icon: "🟠", defaultChecked: true },
+  { id: "cred", name: "CRED UPI & Pay", type: "UPI", icon: "⚫", defaultChecked: true },
+
+  // Bank Accounts
+  { id: "hdfc", name: "HDFC Bank (Savings/Salary)", type: "BANK", icon: "🏦", defaultChecked: true },
+  { id: "sbi", name: "State Bank of India (SBI)", type: "BANK", icon: "🏦", defaultChecked: true },
+  { id: "icici", name: "ICICI Bank (iMobile)", type: "BANK", icon: "🏦", defaultChecked: true },
+  { id: "axis", name: "Axis Bank Mobile", type: "BANK", icon: "🏦", defaultChecked: true },
+  { id: "kotak", name: "Kotak Mahindra Bank", type: "BANK", icon: "🏦", defaultChecked: false },
+  { id: "other_bank", name: "Other NetBanking / IMPS", type: "BANK", icon: "🏛️", defaultChecked: false },
+
+  // Cards & PayLater
+  { id: "credit_cards", name: "Credit Cards (HDFC / ICICI / SBI)", type: "CARD", icon: "💳", defaultChecked: true },
+  { id: "pay_later", name: "LazyPay / Simpl PayLater", type: "CARD", icon: "⚡", defaultChecked: false }
+];
+
+function getPaymentSources() {
+  const store = readStore();
+  const activeIds = store.activePaymentSources || ["phonepe", "gpay", "paytm", "hdfc", "sbi", "icici", "axis", "cred", "amazonpay"];
+  return AVAILABLE_PAYMENT_SOURCES.map(src => ({
+    ...src,
+    isActive: activeIds.includes(src.id)
+  }));
+}
+
+function updatePaymentSources(activeIds) {
+  const store = readStore();
+  store.activePaymentSources = Array.isArray(activeIds) ? activeIds : [];
+  writeStore(store);
+
+  broadcastNotification({
+    title: "⚙️ Payment Modes & Banks Updated",
+    message: `Active auto-sync monitoring enabled for ${store.activePaymentSources.length} payment sources.`,
+    type: "PAYMENT_SOURCES_UPDATED",
+    targetGroup: "Sync Settings"
+  });
+
+  return getPaymentSources();
+}
+
+
 module.exports = {
+  getPaymentSources,
+  updatePaymentSources,
   detectCategory,
   parseSmsOrNotification,
   autoCapturePayment,

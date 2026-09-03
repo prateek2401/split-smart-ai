@@ -241,6 +241,27 @@ app.post("/api/bank/webhook", (req, res) => {
 // Inbound PhonePe, Paytm & Bank Direct Auto-Capture
 
 // Bank Connection & App-to-App Linking Endpoints
+
+// Payment Modes & Banks Checkbox Configuration Endpoints
+app.get("/api/bank/sources", (req, res) => {
+  try {
+    const sources = bankService.getPaymentSources();
+    res.json({ success: true, data: sources });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/bank/sources", (req, res) => {
+  try {
+    const { activeIds } = req.body;
+    const updated = bankService.updatePaymentSources(activeIds);
+    res.json({ success: true, message: "Active payment modes updated successfully!", data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get("/api/bank/accounts", (req, res) => {
   try {
     const accounts = bankService.getConnectedBanks();

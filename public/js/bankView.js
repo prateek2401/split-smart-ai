@@ -1,6 +1,94 @@
 // Bank View Module - PhonePe, Paytm & HDFC Auto-Sync & Roommate Notifications
 const bankView = {
   tempBank: null,
+
+  activeSources: [],
+
+  async fetchActiveSources() {
+    try {
+      const res = await fetch("/api/bank/sources").then(r => r.json());
+      if (res.success) this.activeSources = res.data;
+    } catch (err) {
+      console.error("Error fetching payment sources:", err);
+    }
+  },
+
+  switchModalTab(tab) {
+    const tabCheckboxes = document.getElementById("modalTabCheckboxes");
+    const tabApp2App = document.getElementById("modalTabApp2App");
+    const btnCheckboxes = document.getElementById("tabBtnCheckboxes");
+    const btnApp2App = document.getElementById("tabBtnApp2App");
+
+    if (tab === "checkboxes") {
+      if (tabCheckboxes) tabCheckboxes.style.display = "block";
+      if (tabApp2App) tabApp2App.style.display = "none";
+      if (btnCheckboxes) {
+        btnCheckboxes.style.background = "rgba(99, 102, 241, 0.2)";
+        btnCheckboxes.style.borderColor = "#6366f1";
+        btnCheckboxes.style.color = "#a5b4fc";
+      }
+      if (btnApp2App) {
+        btnApp2App.style.background = "";
+        btnApp2App.style.borderColor = "";
+        btnApp2App.style.color = "";
+      }
+    } else {
+      if (tabCheckboxes) tabCheckboxes.style.display = "none";
+      if (tabApp2App) tabApp2App.style.display = "block";
+      if (btnApp2App) {
+        btnApp2App.style.background = "rgba(99, 102, 241, 0.2)";
+        btnApp2App.style.borderColor = "#6366f1";
+        btnApp2App.style.color = "#a5b4fc";
+      }
+      if (btnCheckboxes) {
+        btnCheckboxes.style.background = "";
+        btnCheckboxes.style.borderColor = "";
+        btnCheckboxes.style.color = "";
+      }
+      this.backToBankSelection();
+    }
+  },
+
+  toggleSourceCard(input) {
+    if (!input) return;
+    const card = input.closest(".source-checkbox-card");
+    if (card) {
+      if (input.checked) card.classList.add("selected");
+      else card.classList.remove("selected");
+    }
+  },
+
+  selectAllSources(shouldSelect) {
+    const inputs = document.querySelectorAll(".source-checkbox-input");
+    inputs.forEach(inp => {
+      inp.checked = shouldSelect;
+      this.toggleSourceCard(inp);
+    });
+  },
+
+  async saveSelectedSources() {
+    const inputs = Array.from(document.querySelectorAll(".source-checkbox-input:checked"));
+    const activeIds = inputs.map(i => i.value);
+
+    try {
+      const res = await fetch("/api/bank/sources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activeIds })
+      });
+      const data = await res.json();
+      if (data.success) {
+        app.showToast(`✅ Saved ${activeIds.length} active payment sources!`);
+        app.closeModals();
+        await this.init();
+      } else {
+        app.showToast("❌ " + data.error);
+      }
+    } catch (err) {
+      app.showToast("❌ Failed to save payment sources");
+    }
+  },
+
   connectedBanks: [],
 
   openLinkBankModal() {
@@ -65,6 +153,7 @@ const bankView = {
 
   async init() {
     await this.fetchPendingAndNotifications();
+    await this.fetchActiveSources();
     this.renderBankAlerts();
     this.renderNotificationsFeed();
   },
@@ -148,9 +237,24 @@ const bankView = {
               <p class="card-subtitle">Real-time payment capture: debits from your bank or UPI are auto-categorized and added to your expense list.</p>
             </div>
           </div>
-          <span class="category-badge badge-variable" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">
-            🟢 Auto-Sync Hook Active
-          </span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" onclick="bankView.openLinkBankModal()" style="border-color: #818cf8; color: #a5b4fc; font-size: 0.78rem;">
+              ☑ Manage Payment Modes
+            </button>
+            <span class="category-badge badge-variable" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">
+              🟢 Auto-Sync Active
+            </span>
+          </div>
+        </div>
+
+        <!-- Active Monitored Sources Pills -->
+        <div style="margin-bottom: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span style="font-size: 0.76rem; color: #94a3b8; font-weight: 600;">Monitored Modes:</span>
+          ${(this.activeSources || []).filter(s => s.isActive).map(s => `
+            <span class="source-pill-active">
+              <span>${s.icon}</span> ${s.name.split(" ")[0]}
+            </span>
+          `).join("")}
         </div>
 
         <!-- 1-Click Simulators for PhonePe / Paytm / HDFC -->
