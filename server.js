@@ -245,6 +245,24 @@ app.post("/api/bank/webhook", (req, res) => {
 // Payment Modes & Banks Checkbox Configuration Endpoints
 
 // PhonePe & Bank Mobile OTP Verification Endpoints
+
+// Firebase Dynamic Config Endpoint (Reads from Vercel Environment Variables)
+app.get("/api/config/firebase", (req, res) => {
+  try {
+    const config = {
+      apiKey: process.env.FIREBASE_API_KEY || "",
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN || "",
+      projectId: process.env.FIREBASE_PROJECT_ID || "",
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "",
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "",
+      appId: process.env.FIREBASE_APP_ID || ""
+    };
+    res.json({ success: true, data: config });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post("/api/bank/send-otp", (req, res) => {
   try {
     const { phone, bankName, upiId } = req.body;
