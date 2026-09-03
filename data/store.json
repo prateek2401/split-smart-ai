@@ -436,6 +436,22 @@
   "pendingBankTransactions": [],
   "notifications": [
     {
+      "id": "notif-1788410431756",
+      "title": "🏦 HDFC Bank Connected Successfully",
+      "message": "Authorized read-only feed for Savings Account (••4829) via App-to-App deep link. Consent ID: HDFCBANK_AA_759773.",
+      "timestamp": "2026-09-03T04:40:31.756Z",
+      "type": "BANK_CONNECTED",
+      "targetGroup": "All Accounts"
+    },
+    {
+      "id": "notif-1788410418498",
+      "title": "🏦 HDFC Bank Connected Successfully",
+      "message": "Authorized read-only feed for Savings Account (••4829) via App-to-App deep link. Consent ID: HDFCBANK_AA_534344.",
+      "timestamp": "2026-09-03T04:40:18.498Z",
+      "type": "BANK_CONNECTED",
+      "targetGroup": "All Accounts"
+    },
+    {
       "id": "notif-1788410050123",
       "title": "📱 Paytm Payment Auto-Added",
       "message": "You paid ₹650.00 for Blinkit Quick Groceries via Paytm • HDFC Bank. Split across roommates.",
@@ -675,6 +691,39 @@
       "appliesToMonth": "2026-10",
       "icon": "🛡️",
       "isPaid": false
+    }
+  ],
+  "connectedBanks": [
+    {
+      "id": "bank-acc-1788410431752",
+      "bankName": "HDFC Bank",
+      "accountType": "Savings Account",
+      "accountNumber": "••4829",
+      "consentId": "HDFCBANK_AA_759773",
+      "status": "ACTIVE",
+      "connectedAt": "2026-09-03T04:40:31.754Z",
+      "lastSyncedAt": "2026-09-03T04:40:31.754Z"
+    },
+    {
+      "id": "bank-acc-1788410418490",
+      "bankName": "HDFC Bank",
+      "accountType": "Savings Account",
+      "accountNumber": "••4829",
+      "consentId": "HDFCBANK_AA_534344",
+      "status": "ACTIVE",
+      "connectedAt": "2026-09-03T04:40:18.495Z",
+      "lastSyncedAt": "2026-09-03T04:40:18.496Z"
+    },
+    {
+      "id": "bank-acc-hdfc",
+      "bankName": "HDFC Bank",
+      "logo": "🏦",
+      "accountType": "Savings Account",
+      "accountNumber": "••4829",
+      "consentId": "HDFC_AA_99812",
+      "status": "ACTIVE",
+      "connectedAt": "2026-09-03T10:00:00Z",
+      "lastSyncedAt": "2026-09-03T04:38:11.441Z"
     }
   ]
 }

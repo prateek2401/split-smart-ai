@@ -1,5 +1,65 @@
 // Bank View Module - PhonePe, Paytm & HDFC Auto-Sync & Roommate Notifications
 const bankView = {
+  tempBank: null,
+  connectedBanks: [],
+
+  openLinkBankModal() {
+    this.backToBankSelection();
+    const modal = document.getElementById("linkBankModal");
+    if (modal) modal.classList.add("open");
+  },
+
+  startAppToAppHandshake(bankName, accountNumber, accountType) {
+    this.tempBank = { bankName, accountNumber, accountType };
+    const step1 = document.getElementById("bankSelectionScreen");
+    const step2 = document.getElementById("app2AppHandshakeScreen");
+    const title = document.getElementById("handshakeBankTitle");
+    const uri = document.getElementById("handshakeUri");
+    const accType = document.getElementById("handshakeAccountType");
+    const accNum = document.getElementById("handshakeAccountNum");
+
+    const schemes = {
+      "HDFC Bank": "hdfcbank://consent?scope=read.transactions",
+      "ICICI Bank": "imobile://consent?scope=read.transactions",
+      "State Bank of India (SBI)": "sbiyono://consent?scope=read.transactions",
+      "Axis Bank": "axisbank://consent?scope=read.transactions"
+    };
+
+    if (title) title.textContent = `${bankName} Mobile App`;
+    if (uri) uri.textContent = schemes[bankName] || "intent://consent#bank";
+    if (accType) accType.textContent = accountType;
+    if (accNum) accNum.textContent = accountNumber;
+
+    if (step1) step1.style.display = "none";
+    if (step2) step2.style.display = "block";
+  },
+
+  backToBankSelection() {
+    const step1 = document.getElementById("bankSelectionScreen");
+    const step2 = document.getElementById("app2AppHandshakeScreen");
+    if (step1) step1.style.display = "block";
+    if (step2) step2.style.display = "none";
+  },
+
+  async confirmBankConnection() {
+    if (!this.tempBank) return;
+    try {
+      const res = await fetch("/api/bank/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(this.tempBank)
+      });
+      const data = await res.json();
+      if (data.success) {
+        app.showToast(`🎉 ${this.tempBank.bankName} connected via App2App Handshake!`);
+        app.closeModals();
+        await app.refreshAll();
+        await this.init();
+      }
+    } catch (err) {
+      app.showToast("❌ Bank connection failed");
+    }
+  },
   pendingTransactions: [],
   notifications: [],
 

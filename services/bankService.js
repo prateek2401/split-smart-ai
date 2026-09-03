@@ -292,6 +292,51 @@ function getNotifications() {
   return store.notifications || [];
 }
 
+function connectBankAccount({ bankName, accountNumber, accountType }) {
+  const store = readStore();
+  if (!store.connectedBanks) store.connectedBanks = [];
+
+  const bankId = "bank-acc-" + Date.now();
+  const consentId = (bankName.replace(/[^A-Za-z]/g, "").toUpperCase() || "BANK") + "_AA_" + Math.floor(100000 + Math.random() * 900000);
+
+  const newBank = {
+    id: bankId,
+    bankName: bankName || "HDFC Bank",
+    accountType: accountType || "Savings Account",
+    accountNumber: accountNumber || "••" + Math.floor(1000 + Math.random() * 9000),
+    consentId,
+    status: "ACTIVE",
+    connectedAt: new Date().toISOString(),
+    lastSyncedAt: new Date().toISOString()
+  };
+
+  store.connectedBanks.unshift(newBank);
+  writeStore(store);
+
+  broadcastNotification({
+    title: `🏦 ${newBank.bankName} Connected Successfully`,
+    message: `Authorized read-only feed for ${newBank.accountType} (${newBank.accountNumber}) via App-to-App deep link. Consent ID: ${consentId}.`,
+    type: "BANK_CONNECTED",
+    targetGroup: "All Accounts"
+  });
+
+  return newBank;
+}
+
+function getConnectedBanks() {
+  const store = readStore();
+  return store.connectedBanks || [];
+}
+
+function disconnectBank(bankId) {
+  const store = readStore();
+  if (!store.connectedBanks) store.connectedBanks = [];
+  store.connectedBanks = store.connectedBanks.filter(b => b.id !== bankId);
+  writeStore(store);
+  return { success: true };
+}
+
+
 module.exports = {
   detectCategory,
   parseSmsOrNotification,
@@ -300,5 +345,8 @@ module.exports = {
   getPendingTransactions,
   processBankTransaction,
   broadcastNotification,
-  getNotifications
+  getNotifications,
+  connectBankAccount,
+  getConnectedBanks,
+  disconnectBank
 };

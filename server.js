@@ -239,6 +239,43 @@ app.post("/api/bank/webhook", (req, res) => {
 });
 
 // Inbound PhonePe, Paytm & Bank Direct Auto-Capture
+
+// Bank Connection & App-to-App Linking Endpoints
+app.get("/api/bank/accounts", (req, res) => {
+  try {
+    const accounts = bankService.getConnectedBanks();
+    res.json({ success: true, data: accounts });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/bank/connect", (req, res) => {
+  try {
+    const { bankName, accountNumber, accountType } = req.body;
+    if (!bankName) {
+      return res.status(400).json({ success: false, error: "Bank name is required" });
+    }
+    const connected = bankService.connectBankAccount({ bankName, accountNumber, accountType });
+    res.json({ success: true, message: `Connected ${connected.bankName} successfully!`, data: connected });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/bank/disconnect", (req, res) => {
+  try {
+    const { bankId } = req.body;
+    if (!bankId) {
+      return res.status(400).json({ success: false, error: "Bank ID is required" });
+    }
+    const result = bankService.disconnectBank(bankId);
+    res.json({ success: true, message: "Bank feed disconnected and consent revoked", data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post("/api/bank/auto-capture", (req, res) => {
   try {
     const { sourceApp, bankName, merchant, amount, categoryId, paidBy, isSplit, groupId } = req.body;

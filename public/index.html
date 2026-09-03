@@ -178,6 +178,9 @@
         <button class="btn btn-secondary btn-sm" onclick="app.openSettleModal()">
           <span>⚡</span> Settle Up
         </button>
+        <button class="btn btn-secondary btn-sm" onclick="bankView.openLinkBankModal()" title="Connect your bank app via App2App deep link" style="border-color: #10b981; color: #6ee7b7;">
+          <span>🔗</span> Link Bank App
+        </button>
         <button class="btn btn-secondary btn-sm" onclick="bankView.simulateTransaction('rent')" title="Simulate bank debit webhook">
           <span>🏦</span> Simulate Bank Pay
         </button>
@@ -970,6 +973,116 @@
           <button type="button" class="btn btn-primary btn-sm" id="tourNextBtn" onclick="tourView.next()">Next Feature →</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  
+  <!-- MODAL: LINK BANK APP & APP-TO-APP HANDSHAKE -->
+  <div class="modal-overlay" id="linkBankModal">
+    <div class="modal-box" style="max-width: 580px;">
+      
+      <!-- Step 1: Bank Selection Screen -->
+      <div id="bankSelectionScreen">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🏦 Link Bank App (App2App Deep Link)</h2>
+            <p class="card-subtitle">Connect your bank to automatically sync PhonePe, Paytm & card transactions.</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+        </div>
+
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px;">
+          Choose your bank app to launch the secure <strong>App-to-App consent handshake</strong> on your device:
+        </div>
+
+        <div class="bank-selection-grid">
+          <!-- HDFC Bank -->
+          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('HDFC Bank', '••4829', 'Savings Account')">
+            <div class="bank-logo-box" style="color: #6366f1;">🏦</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">HDFC Bank</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">MobileBanking App</div>
+            </div>
+          </div>
+
+          <!-- ICICI Bank -->
+          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('ICICI Bank', '••7102', 'Savings Account')">
+            <div class="bank-logo-box" style="color: #f59e0b;">🏦</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">ICICI Bank</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">iMobile Pay App</div>
+            </div>
+          </div>
+
+          <!-- State Bank of India -->
+          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('State Bank of India (SBI)', '••3319', 'Savings Account')">
+            <div class="bank-logo-box" style="color: #06b6d4;">🏦</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">State Bank of India</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">SBI YONO App</div>
+            </div>
+          </div>
+
+          <!-- Axis Bank -->
+          <div class="bank-option-card" onclick="bankView.startAppToAppHandshake('Axis Bank', '••8204', 'Salary Account')">
+            <div class="bank-logo-box" style="color: #ec4899;">🏦</div>
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Axis Bank</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Axis Mobile App</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.8rem; color: var(--text-muted);">
+          🔒 <strong>100% Secure & Regulated:</strong> Authentication happens inside your official bank app using FaceID / Fingerprint / MPIN. SplitSmart AI receives read-only transaction feeds and cannot move funds.
+        </div>
+      </div>
+
+      <!-- Step 2: Simulated App-to-App Handshake Screen -->
+      <div id="app2AppHandshakeScreen" style="display: none;">
+        <div class="app2app-container">
+          <div class="app2app-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 24px;">📱</span>
+              <div>
+                <div style="font-weight: 700; font-size: 1rem; color: #fff;" id="handshakeBankTitle">HDFC Bank MobileBanking</div>
+                <div style="font-size: 0.76rem; color: #94a3b8;">Deep Link Handshake: <span id="handshakeUri">intent://consent#hdfc</span></div>
+              </div>
+            </div>
+            <span class="app2app-badge">🟢 App Opened & Verified</span>
+          </div>
+
+          <div style="padding: 12px 16px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; margin-bottom: 16px;">
+            <div style="font-size: 0.86rem; font-weight: 600; color: #fff; margin-bottom: 4px;">
+              Official Bank Consent Request
+            </div>
+            <div style="font-size: 0.8rem; color: #94a3b8;">
+              <strong style="color: #6ee7b7;">SplitSmart AI</strong> is requesting authorization for your <span id="handshakeAccountType">Savings Account</span> (<span id="handshakeAccountNum">••4829</span>).
+            </div>
+          </div>
+
+          <div style="margin-bottom: 18px;">
+            <div class="app2app-scope-item">
+              <span class="app2app-check">✓</span>
+              <div><strong>Sync Debit Transactions:</strong> Real-time feeds of UPI (PhonePe, Paytm), POS cards, and NetBanking.</div>
+            </div>
+            <div class="app2app-scope-item">
+              <span class="app2app-check">✓</span>
+              <div><strong>100% Read-Only:</strong> Zero withdrawal, transfer, or modification permissions.</div>
+            </div>
+            <div class="app2app-scope-item">
+              <span class="app2app-check">✓</span>
+              <div><strong>Revocable Anytime:</strong> You can revoke SplitSmart AI access directly inside your bank app settings.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="bankView.backToBankSelection()">✕ Reject</button>
+            <button type="button" class="btn btn-success btn-sm" onclick="bankView.confirmBankConnection()">✓ Authorize & Link Bank App</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
