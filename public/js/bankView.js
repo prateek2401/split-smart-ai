@@ -1,4 +1,4 @@
-// Bank View Module - Automated Bank Sync & Roommate Notifications
+// Bank View Module - PhonePe, Paytm & HDFC Auto-Sync & Roommate Notifications
 const bankView = {
   pendingTransactions: [],
   notifications: [],
@@ -27,81 +27,107 @@ const bankView = {
     const container = document.getElementById("bankAlertsContainer");
     if (!container) return;
 
-    if (this.pendingTransactions.length === 0) {
-      container.innerHTML = `
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-size: 24px; background: rgba(99, 102, 241, 0.1); padding: 8px; border-radius: var(--radius-sm);">🏦</div>
-            <div>
-              <div style="font-weight: 600; font-size: 0.95rem;">Bank Feed Connected (Plaid / Open Banking Active)</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Listening for debit webhooks (Rent, EMI, Utilities, Groceries). No unreviewed debits right now.</div>
+    // Always render the PhonePe, Paytm & HDFC Bank Auto-Sync Panel
+    let pendingHtml = "";
+    if (this.pendingTransactions && this.pendingTransactions.length > 0) {
+      pendingHtml = this.pendingTransactions.map(tx => `
+        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 16px; box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <div style="font-size: 26px; background: rgba(99, 102, 241, 0.2); width: 46px; height: 46px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                🏦
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="ai-pill" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7; font-size: 0.72rem;">
+                    ● LIVE BANK DEBIT DETECTED
+                  </span>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">${tx.bankName}</span>
+                </div>
+                <h3 style="font-size: 1.15rem; font-weight: 700; margin-top: 3px;">${tx.merchant}</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                  Statement: <em>${tx.rawDescription}</em>
+                </p>
+              </div>
+            </div>
+
+            <div style="text-align: right;">
+              <div style="font-size: 1.45rem; font-weight: 800; font-family: 'Outfit'; color: #fff;">
+                ${app.formatMoney(tx.amount)}
+              </div>
+              <div style="font-size: 0.75rem; color: #a5b4fc; font-weight: 600;">
+                AI Match: 🏠 Rent
+              </div>
             </div>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-sm" onclick="bankView.simulateTransaction('rent')">
-              ⚡ Test Rent (${app.formatMoney(1500)})
+
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="bankView.processTransaction('${tx.id}', 'DISMISS')">
+              ✕ Dismiss
             </button>
-            <button class="btn btn-secondary btn-sm" onclick="bankView.simulateTransaction('wifi')">
-              ⚡ Test WiFi (${app.formatMoney(85)})
+            <button class="btn btn-secondary btn-sm" onclick="bankView.processTransaction('${tx.id}', 'PERSONAL')">
+              👤 Personal Only (${app.formatMoney(tx.amount)})
+            </button>
+            <button class="btn btn-success btn-sm" onclick="bankView.processTransaction('${tx.id}', 'SPLIT')">
+              👥 1-Click Split & Notify Roommates (${app.formatMoney(tx.perPersonShare)} each)
             </button>
           </div>
         </div>
-      `;
-      return;
+      `).join("");
     }
 
-    container.innerHTML = this.pendingTransactions.map(tx => `
-      <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: var(--radius-md); padding: 20px 24px; box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15); animation: fadeIn 0.3s ease;">
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px;">
-          <div style="display: flex; align-items: flex-start; gap: 14px;">
-            <div style="font-size: 28px; background: rgba(99, 102, 241, 0.2); width: 50px; height: 50px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
-              🏦
-            </div>
+    // PhonePe, Paytm & HDFC Auto-Capture Control Center
+    container.innerHTML = `
+      ${pendingHtml}
+      <div class="card" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 27, 75, 0.4) 100%); border: 1px solid rgba(99, 102, 241, 0.25);">
+        <div class="card-header" style="margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">📱</span>
             <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="ai-pill" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7; font-size: 0.75rem;">
-                  ● LIVE BANK PAYMENT DETECTED
-                </span>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">${tx.bankName}</span>
-              </div>
-              <h3 style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">${tx.merchant}</h3>
-              <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">
-                Raw Statement Memo: <em>${tx.rawDescription}</em>
-              </p>
+              <h3 class="card-title" style="font-size: 1.15rem;">PhonePe, Paytm & HDFC Bank Auto-Sync</h3>
+              <p class="card-subtitle">Real-time payment capture: debits from your bank or UPI are auto-categorized and added to your expense list.</p>
             </div>
           </div>
+          <span class="category-badge badge-variable" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">
+            🟢 Auto-Sync Hook Active
+          </span>
+        </div>
 
-          <div style="text-align: right;">
-            <div style="font-size: 1.6rem; font-weight: 800; font-family: 'Outfit'; color: #fff;">
-              ${app.formatMoney(tx.amount)}
-            </div>
-            <div style="font-size: 0.8rem; color: #a5b4fc; font-weight: 600;">
-              AI Match: 🏠 Rent
-            </div>
+        <!-- 1-Click Simulators for PhonePe / Paytm / HDFC -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 0.82rem; font-weight: 600; color: #a5b4fc; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+            ⚡ Quick Test Payment Events:
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="bankView.triggerAutoCapture('phonepe-rent')" style="border-color: #6366f1;">
+              📱 PhonePe: Paid ${app.formatMoney(1500)} Rent (Split)
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="bankView.triggerAutoCapture('paytm-grocery')" style="border-color: #06b6d4;">
+              📱 Paytm: Paid ${app.formatMoney(650)} Groceries (Split)
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="bankView.triggerAutoCapture('hdfc-bills')" style="border-color: #ec4899;">
+              🏦 HDFC Bank: Paid ${app.formatMoney(2200)} Electricity
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="bankView.triggerAutoCapture('phonepe-aarav-dinner')" style="border-color: #f59e0b;">
+              📱 Aarav (PhonePe): Paid ${app.formatMoney(1200)} Dinner
+            </button>
           </div>
         </div>
 
-        <div style="background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-          <div style="font-size: 0.88rem; color: #e0e7ff;">
-            💡 <strong>AI Suggestion:</strong> Matches recurring commitment for <strong>${tx.suggestedGroupName || "Flat #402 Roommates"}</strong>. 
-            Split across ${tx.splitCount} members (${app.formatMoney(tx.perPersonShare)} / person).
+        <!-- Interactive Bank SMS / Notification Parser -->
+        <div style="background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-sm); padding: 14px; border: 1px dashed rgba(255, 255, 255, 0.12);">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #e2e8f0; display: block; margin-bottom: 6px;">
+            💬 Or Paste Real Bank / UPI Debit SMS to Auto-Add:
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="bankSmsInput" class="form-input" placeholder="e.g. Paid Rs 850 at Swiggy via PhonePe UPI on HDFC Bank A/C XX4829" style="flex: 1;">
+            <button class="btn btn-primary btn-sm" onclick="bankView.parseSmsInput()">
+              ⚡ Parse & Auto-Add
+            </button>
           </div>
-          <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Your share: ${app.formatMoney(tx.perPersonShare)}</span>
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-          <button class="btn btn-secondary btn-sm" onclick="bankView.processTransaction('${tx.id}', 'DISMISS')">
-            ✕ Dismiss
-          </button>
-          <button class="btn btn-secondary btn-sm" onclick="bankView.processTransaction('${tx.id}', 'PERSONAL')">
-            👤 Log as Personal Only (${app.formatMoney(tx.amount)})
-          </button>
-          <button class="btn btn-success" onclick="bankView.processTransaction('${tx.id}', 'SPLIT')">
-            👥 1-Click Split & Notify Roommates (${app.formatMoney(tx.perPersonShare)} each)
-          </button>
         </div>
       </div>
-    `).join("");
+    `;
   },
 
   renderNotificationsFeed() {
@@ -133,6 +159,52 @@ const bankView = {
     }).join("");
   },
 
+  async triggerAutoCapture(type) {
+    try {
+      const res = await fetch("/api/bank/simulate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type })
+      });
+      const data = await res.json();
+      if (data.success) {
+        app.showToast(`✅ ${data.message}`);
+        await app.refreshAll();
+        await this.init();
+      }
+    } catch (err) {
+      app.showToast("❌ Auto-capture error");
+    }
+  },
+
+  async parseSmsInput() {
+    const input = document.getElementById("bankSmsInput");
+    const text = input ? input.value.trim() : "";
+    if (!text) {
+      app.showToast("❌ Please paste or type a bank debit SMS");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/bank/parse-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, autoAdd: true })
+      });
+      const data = await res.json();
+      if (data.success) {
+        app.showToast(`✅ ${data.message}`);
+        if (input) input.value = "";
+        await app.refreshAll();
+        await this.init();
+      } else {
+        app.showToast("❌ " + data.error);
+      }
+    } catch (err) {
+      app.showToast("❌ Error parsing SMS");
+    }
+  },
+
   async processTransaction(transactionId, action) {
     try {
       const res = await fetch("/api/bank/process", {
@@ -154,23 +226,6 @@ const bankView = {
       }
     } catch (err) {
       app.showToast("❌ Error processing bank transaction");
-    }
-  },
-
-  async simulateTransaction(type) {
-    try {
-      const res = await fetch("/api/bank/simulate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type })
-      });
-      const data = await res.json();
-      if (data.success) {
-        app.showToast(`🔔 Bank webhook received: ${app.formatMoney(data.data.amount)} for ${data.data.merchant}`);
-        await this.init();
-      }
-    } catch (err) {
-      app.showToast("❌ Simulation error");
     }
   }
 };

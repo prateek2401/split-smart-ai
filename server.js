@@ -238,32 +238,138 @@ app.post("/api/bank/webhook", (req, res) => {
   }
 });
 
+// Inbound PhonePe, Paytm & Bank Direct Auto-Capture
+app.post("/api/bank/auto-capture", (req, res) => {
+  try {
+    const { sourceApp, bankName, merchant, amount, categoryId, paidBy, isSplit, groupId } = req.body;
+    if (!amount || Number(amount) <= 0 || !merchant) {
+      return res.status(400).json({ success: false, error: "Merchant and positive amount required" });
+    }
+    const result = bankService.autoCapturePayment({
+      sourceApp: sourceApp || "PhonePe",
+      bankName: bankName || "HDFC Bank",
+      merchant,
+      amount: Number(amount),
+      categoryId,
+      paidBy: paidBy || "user-me",
+      isSplit: Boolean(isSplit),
+      groupId: groupId || null
+    });
+    res.json({ success: true, message: `Payment of ${amount} via ${sourceApp || "PhonePe"} auto-added to expenses`, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Paste & Parse Bank / UPI Debit SMS
+app.post("/api/bank/parse-sms", (req, res) => {
+  try {
+    const { text, autoAdd = true, paidBy } = req.body;
+    if (!text || text.trim() === "") {
+      return res.status(400).json({ success: false, error: "SMS or notification text required" });
+    }
+
+    const parsed = bankService.parseSmsOrNotification(text);
+    if (!parsed.amount || parsed.amount <= 0) {
+      return res.status(400).json({ success: false, error: "Could not detect a debit amount in message. Example: Rs 1500 debited..." });
+    }
+
+    if (autoAdd) {
+      const result = bankService.autoCapturePayment({
+        sourceApp: parsed.sourceApp,
+        bankName: parsed.bankName,
+        merchant: parsed.merchant,
+        amount: parsed.amount,
+        categoryId: parsed.categoryId,
+        paidBy: paidBy || "user-me",
+        isSplit: parsed.isSplit,
+        rawText: text
+      });
+      res.json({ success: true, message: `Parsed and auto-added ${parsed.sourceApp} payment of ${parsed.amount} to ${parsed.merchant}`, data: { parsed, result } });
+    } else {
+      const item = bankService.receiveWebhookTransaction({
+        bankName: parsed.bankName,
+        merchant: parsed.merchant,
+        amount: parsed.amount,
+        rawDescription: text,
+        sourceApp: parsed.sourceApp
+      });
+      res.json({ success: true, message: "Parsed and staged for 1-click review", data: item });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Preset Simulations for PhonePe, Paytm and HDFC Bank
 app.post("/api/bank/simulate", (req, res) => {
   try {
     const { type } = req.body;
     const presets = {
-      rent: {
-        bankName: "Chase Bank ••4829",
+      // 1. PhonePe Rent Payment (Split with Flatmates)
+      "phonepe-rent": {
+        sourceApp: "PhonePe",
+        bankName: "HDFC Bank ••4829",
         merchant: "Apex Property Management (Apartment Rent)",
         amount: 1500.00,
-        rawDescription: "ACH DEBIT APEX PROP MGMT RENT 09/26"
+        categoryId: "cat-rent",
+        paidBy: "user-me",
+        isSplit: true,
+        groupId: "group-flat"
       },
-      wifi: {
-        bankName: "Capital One ••1904",
-        merchant: "ConEd & HighSpeed Fiber Utilities",
-        amount: 85.00,
-        rawDescription: "DIRECT DEBIT CONED & INTERNET UTILITY"
+      // 2. Paytm Groceries at Blinkit (Split with Flatmates)
+      "paytm-grocery": {
+        sourceApp: "Paytm",
+        bankName: "HDFC Bank ••4829",
+        merchant: "Blinkit Quick Commerce Groceries",
+        amount: 650.00,
+        categoryId: "cat-grocery",
+        paidBy: "user-me",
+        isSplit: true,
+        groupId: "group-flat"
       },
-      groceries: {
-        bankName: "Chase Bank ••4829",
-        merchant: "Trader Joe's Supermarket Restock",
-        amount: 135.50,
-        rawDescription: "POS DEBIT TRADER JOES #412"
+      // 3. HDFC NetBanking Electricity Bill (Split with Flatmates)
+      "hdfc-bills": {
+        sourceApp: "HDFC NetBanking",
+        bankName: "HDFC Bank ••4829",
+        merchant: "BESCOM HighSpeed Fiber & Electricity Bill",
+        amount: 2200.00,
+        categoryId: "cat-bills",
+        paidBy: "user-me",
+        isSplit: true,
+        groupId: "group-flat"
+      },
+      // 4. Roommate Aarav Paid for Group Dinner via PhonePe
+      "phonepe-aarav-dinner": {
+        sourceApp: "PhonePe",
+        bankName: "SBI ••9912",
+        merchant: "Punjabi Tadka Bistro & Dinner",
+        amount: 1200.00,
+        categoryId: "cat-dining",
+        paidBy: "friend-1", // Aarav paid
+        isSplit: true,
+        groupId: "group-flat"
+      },
+      // Fallback
+      rent: {
+        sourceApp: "PhonePe",
+        bankName: "HDFC Bank ••4829",
+        merchant: "Apex Property Management (Apartment Rent)",
+        amount: 1500.00,
+        categoryId: "cat-rent",
+        paidBy: "user-me",
+        isSplit: true,
+        groupId: "group-flat"
       }
     };
-    const chosen = presets[type] || presets.rent;
-    const item = bankService.receiveWebhookTransaction(chosen);
-    res.json({ success: true, message: `Simulated bank debit for ${item.merchant}`, data: item });
+
+    const chosen = presets[type] || presets["phonepe-rent"];
+    const result = bankService.autoCapturePayment(chosen);
+    res.json({
+      success: true,
+      message: `⚡ Auto-Captured ${chosen.sourceApp} payment of ${chosen.amount} for ${chosen.merchant}!`,
+      data: result
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

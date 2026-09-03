@@ -115,7 +115,7 @@ function getSplitwiseBalances() {
 /**
  * Add a new expense (Personal or Split)
  */
-function addExpense({ title, amount, categoryId, paidBy, isSplit, groupId, splitType, participants, customShares }) {
+function addExpense({ title, amount, categoryId, paidBy, isSplit, groupId, splitType, participants, customShares, paymentSource }) {
   const store = readStore();
   const numAmount = Math.round(Number(amount) * 100) / 100;
   const payer = paidBy || store.currentUser.id;
@@ -166,7 +166,8 @@ function addExpense({ title, amount, categoryId, paidBy, isSplit, groupId, split
     paidBy: payer,
     isSplit: Boolean(isSplit),
     groupId: groupId || null,
-    splitDetails
+    splitDetails,
+    paymentSource: paymentSource || null
   };
 
   store.expenses.push(newExpense);

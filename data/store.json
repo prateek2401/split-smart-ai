@@ -303,6 +303,118 @@
           }
         ]
       }
+    },
+    {
+      "id": "exp-1788409992906",
+      "title": "Apartment Monthly Rent",
+      "amount": 1500,
+      "categoryId": "cat-rent",
+      "date": "2026-09-03T04:33:12.906Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 500
+          },
+          {
+            "userId": "friend-1",
+            "amount": 500
+          },
+          {
+            "userId": "friend-3",
+            "amount": 500
+          }
+        ]
+      },
+      "paymentSource": "PhonePe • HDFC Bank"
+    },
+    {
+      "id": "exp-1788409992933",
+      "title": "Punjabi Tadka Bistro & Dinner",
+      "amount": 1200,
+      "categoryId": "cat-dining",
+      "date": "2026-09-03T04:33:12.933Z",
+      "paidBy": "friend-1",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 400
+          },
+          {
+            "userId": "friend-1",
+            "amount": 400
+          },
+          {
+            "userId": "friend-3",
+            "amount": 400
+          }
+        ]
+      },
+      "paymentSource": "PhonePe • SBI ••9912"
+    },
+    {
+      "id": "exp-1788410025076",
+      "title": "Blinkit Quick Commerce Groceries",
+      "amount": 650,
+      "categoryId": "cat-grocery",
+      "date": "2026-09-03T04:33:45.076Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 216.67
+          },
+          {
+            "userId": "friend-1",
+            "amount": 216.67
+          },
+          {
+            "userId": "friend-3",
+            "amount": 216.66
+          }
+        ]
+      },
+      "paymentSource": "Paytm • HDFC Bank ••4829"
+    },
+    {
+      "id": "exp-1788410050118",
+      "title": "Blinkit Quick Groceries",
+      "amount": 650,
+      "categoryId": "cat-grocery",
+      "date": "2026-09-03T04:34:10.118Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 216.67
+          },
+          {
+            "userId": "friend-1",
+            "amount": 216.67
+          },
+          {
+            "userId": "friend-3",
+            "amount": 216.66
+          }
+        ]
+      },
+      "paymentSource": "Paytm • HDFC Bank"
     }
   ],
   "settlements": [
@@ -323,6 +435,38 @@
   ],
   "pendingBankTransactions": [],
   "notifications": [
+    {
+      "id": "notif-1788410050123",
+      "title": "📱 Paytm Payment Auto-Added",
+      "message": "You paid ₹650.00 for Blinkit Quick Groceries via Paytm • HDFC Bank. Split across roommates.",
+      "timestamp": "2026-09-03T04:34:10.123Z",
+      "type": "APP_PAYMENT_CAPTURED",
+      "targetGroup": "Flat #402 Roommates"
+    },
+    {
+      "id": "notif-1788410025079",
+      "title": "📱 Paytm Payment Auto-Added",
+      "message": "You paid ₹650.00 for Blinkit Quick Commerce Groceries via Paytm • HDFC Bank ••4829. Split across roommates.",
+      "timestamp": "2026-09-03T04:33:45.079Z",
+      "type": "APP_PAYMENT_CAPTURED",
+      "targetGroup": "Flat #402 Roommates"
+    },
+    {
+      "id": "notif-1788409992934",
+      "title": "📱 PhonePe Payment Auto-Added",
+      "message": "Aarav paid ₹1200.00 for Punjabi Tadka Bistro & Dinner via PhonePe • SBI ••9912. Split across roommates.",
+      "timestamp": "2026-09-03T04:33:12.934Z",
+      "type": "APP_PAYMENT_CAPTURED",
+      "targetGroup": "Flat #402 Roommates"
+    },
+    {
+      "id": "notif-1788409992907",
+      "title": "📱 PhonePe Payment Auto-Added",
+      "message": "You paid ₹1500.00 for Apartment Monthly Rent via PhonePe • HDFC Bank. Split across roommates.",
+      "timestamp": "2026-09-03T04:33:12.907Z",
+      "type": "APP_PAYMENT_CAPTURED",
+      "targetGroup": "Flat #402 Roommates"
+    },
     {
       "id": "notif-1788406906902",
       "title": "Auto-Sync: Apex Property Management (Apartment Rent) Paid",

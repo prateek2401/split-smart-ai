@@ -188,8 +188,8 @@ const app = {
             <div class="trans-left">
               <div class="trans-icon" style="background: ${cat.color}22; padding: 6px 10px; border-radius: 8px;">${cat.icon}</div>
               <div>
-                <div class="trans-title">${exp.title} ${splitBadge}</div>
-                <div class="trans-meta">${cat.name} • ${dateStr}</div>
+                <div class="trans-title">${exp.title} ${splitBadge} ${exp.paymentSource ? `<span class="category-badge" style="background: rgba(99, 102, 241, 0.18); border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc; font-size: 0.68rem; margin-left: 6px;">📱 ${exp.paymentSource}</span>` : ""}</div>
+                <div class="trans-meta">${cat.name} • ${dateStr}${s && s.friends && exp.paidBy !== "user-me" && s.friends.find(f => f.id === exp.paidBy) ? " • Paid by " + s.friends.find(f => f.id === exp.paidBy).name : ""}</div>
               </div>
             </div>
             <div class="trans-amount" style="color: ${isSplit ? "#6ee7b7" : "#fff"};">
