@@ -1,4 +1,4 @@
-// Main Application Controller - Auth, Multi-Month & Currency Engine
+// Main Application Controller - Auth Gate, Multi-Month & Currency Engine
 const app = {
   activeMonth: "2026-09",
   currency: "$",
@@ -6,6 +6,7 @@ const app = {
   selectedCurrencyTemp: { symbol: "$", code: "USD" },
   currentUser: null,
   authMode: "login",
+  isLoggedIn: false,
 
   state: {
     budget: null,
@@ -15,7 +16,49 @@ const app = {
 
   async init() {
     this.setupNavigation();
-    await this.refreshAll();
+    this.checkAuthGate();
+  },
+
+  checkAuthGate() {
+    const authStored = localStorage.getItem("splitsmart_logged_in");
+    const userStored = localStorage.getItem("splitsmart_user");
+
+    if (authStored === "true" && userStored) {
+      try {
+        this.currentUser = JSON.parse(userStored);
+        this.isLoggedIn = true;
+        this.showApp();
+        this.refreshAll();
+      } catch (e) {
+        this.showAuthPage();
+      }
+    } else {
+      this.showAuthPage();
+    }
+  },
+
+  showAuthPage() {
+    this.isLoggedIn = false;
+    const authEl = document.getElementById("authPage");
+    const appEl = document.getElementById("appContainer");
+    if (authEl) authEl.style.display = "flex";
+    if (appEl) appEl.style.display = "none";
+  },
+
+  showApp() {
+    this.isLoggedIn = true;
+    const authEl = document.getElementById("authPage");
+    const appEl = document.getElementById("appContainer");
+    if (authEl) authEl.style.display = "none";
+    if (appEl) appEl.style.display = "block";
+  },
+
+  logout() {
+    localStorage.removeItem("splitsmart_logged_in");
+    localStorage.removeItem("splitsmart_user");
+    this.currentUser = null;
+    this.showAuthPage();
+    this.showToast("🚪 Logged out successfully");
   },
 
   formatMoney(amount) {
@@ -23,7 +66,6 @@ const app = {
     const isNegative = num < 0;
     const absVal = Math.abs(num);
 
-    // Format Indian Rupee style vs Standard
     let formattedNum;
     if (this.currencyCode === "INR" || this.currency === "₹") {
       formattedNum = absVal.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -35,6 +77,7 @@ const app = {
   },
 
   async refreshAll() {
+    if (!this.isLoggedIn) return;
     try {
       const [budgetRes, splitRes, aiRes] = await Promise.all([
         fetch(`/api/budget?month=${this.activeMonth}`).then(r => r.json()),
@@ -49,7 +92,9 @@ const app = {
       }
       if (splitRes.success) {
         this.state.splitwise = splitRes.data;
-        if (splitRes.data.currentUser) this.currentUser = splitRes.data.currentUser;
+        if (!this.currentUser && splitRes.data.currentUser) {
+          this.currentUser = splitRes.data.currentUser;
+        }
       }
       if (aiRes.success) this.state.ai = aiRes.data;
 
@@ -125,13 +170,11 @@ const app = {
       burnBar.className = `progress-fill ${b.overallBurnPercent > 85 ? "warning" : "healthy"}`;
     }
 
-    // Splitwise snapshot balances
     const dashOwed = document.getElementById("dashOwedAmount");
     const dashOwe = document.getElementById("dashOweAmount");
     if (dashOwed && s) dashOwed.textContent = this.formatMoney(s.totalYouAreOwed);
     if (dashOwe && s) dashOwe.textContent = this.formatMoney(s.totalYouOwe);
 
-    // Recent Transactions Ledger
     const recentList = document.getElementById("dashRecentExpenses");
     if (recentList && s && s.recentExpenses) {
       recentList.innerHTML = s.recentExpenses.map(exp => {
@@ -226,22 +269,23 @@ const app = {
     }
   },
 
-  // Auth Modal & Google SSO
-  openAuthModal() {
-    const modal = document.getElementById("authModal");
-    if (modal) modal.classList.add("open");
-  },
-
+  // Auth Functions
   switchAuthTab(mode) {
     this.authMode = mode;
     const nameGroup = document.getElementById("authNameGroup");
+    const currGroup = document.getElementById("authCurrencyGroup");
     const submitBtn = document.getElementById("authSubmitBtn");
     const tabLogin = document.getElementById("authTabLogin");
     const tabRegister = document.getElementById("authTabRegister");
+    const title = document.getElementById("authPanelTitle");
+    const subtitle = document.getElementById("authPanelSubtitle");
 
     if (mode === "register") {
       if (nameGroup) nameGroup.style.display = "block";
-      if (submitBtn) submitBtn.textContent = "Create Account";
+      if (currGroup) currGroup.style.display = "block";
+      if (title) title.textContent = "Create New Account";
+      if (subtitle) subtitle.textContent = "Join SplitSmart AI to manage your monthly finances and shared bills.";
+      if (submitBtn) submitBtn.textContent = "Create Free Account";
       if (tabRegister) {
         tabRegister.style.background = "rgba(99, 102, 241, 0.2)";
         tabRegister.style.borderColor = "#6366f1";
@@ -252,7 +296,10 @@ const app = {
       }
     } else {
       if (nameGroup) nameGroup.style.display = "none";
-      if (submitBtn) submitBtn.textContent = "Sign In";
+      if (currGroup) currGroup.style.display = "none";
+      if (title) title.textContent = "Welcome to SplitSmart AI";
+      if (subtitle) subtitle.textContent = "Sign in with Google SSO or your email to access your financial desk.";
+      if (submitBtn) submitBtn.textContent = "Sign In to Dashboard";
       if (tabLogin) {
         tabLogin.style.background = "rgba(99, 102, 241, 0.2)";
         tabLogin.style.borderColor = "#6366f1";
@@ -277,10 +324,7 @@ const app = {
       });
       const data = await res.json();
       if (data.success) {
-        this.currentUser = data.data;
-        this.showToast(`✅ Signed in as ${data.data.name} via Google SSO!`);
-        this.closeModals();
-        await this.refreshAll();
+        this.loginSuccess(data.data, "Signed in with Google SSO!");
       }
     } catch (err) {
       this.showToast("❌ Google SSO Failed");
@@ -291,10 +335,13 @@ const app = {
     e.preventDefault();
     const email = document.getElementById("authEmailInput").value;
     const password = document.getElementById("authPasswordInput").value;
-    const name = document.getElementById("authNameInput").value;
+    const name = document.getElementById("authNameInput")?.value || "";
+
+    const currVal = document.getElementById("authCurrencySelect")?.value || "$:USD";
+    const [currSymbol, currCode] = currVal.split(":");
 
     const endpoint = this.authMode === "register" ? "/api/auth/register" : "/api/auth/login";
-    const payload = this.authMode === "register" ? { name, email, password, currency: this.currency, currencyCode: this.currencyCode } : { email, password };
+    const payload = this.authMode === "register" ? { name, email, password, currency: currSymbol, currencyCode: currCode } : { email, password };
 
     try {
       const res = await fetch(endpoint, {
@@ -304,16 +351,37 @@ const app = {
       });
       const data = await res.json();
       if (data.success) {
-        this.currentUser = data.data;
-        this.showToast(`✅ ${this.authMode === "register" ? "Registered & signed in" : "Signed in"} successfully!`);
-        this.closeModals();
-        await this.refreshAll();
+        this.loginSuccess(data.data, this.authMode === "register" ? "Account created successfully!" : "Signed in successfully!");
       } else {
         this.showToast("❌ " + data.error);
       }
     } catch (err) {
       this.showToast("❌ Authentication error");
     }
+  },
+
+  quickDemoLogin() {
+    const demoUser = {
+      id: "user-me",
+      name: "Prateek (You)",
+      email: "prateek@example.com",
+      avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Prateek",
+      currency: this.currency,
+      currencyCode: this.currencyCode
+    };
+    this.loginSuccess(demoUser, "Welcome back, Prateek!");
+  },
+
+  loginSuccess(user, message) {
+    this.currentUser = user;
+    localStorage.setItem("splitsmart_logged_in", "true");
+    localStorage.setItem("splitsmart_user", JSON.stringify(user));
+    if (user.currency) this.currency = user.currency;
+    if (user.currencyCode) this.currencyCode = user.currencyCode;
+
+    this.showApp();
+    this.showToast(`✅ ${message}`);
+    this.refreshAll();
   },
 
   openCopyBudgetModal() {
