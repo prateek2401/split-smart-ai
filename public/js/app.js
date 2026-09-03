@@ -438,6 +438,13 @@ const app = {
     this.showApp();
     this.showToast(`✅ ${message}`);
     this.refreshAll();
+
+    // Auto-launch quick guided tour on first login
+    if (localStorage.getItem("splitsmart_tour_completed") !== "true") {
+      setTimeout(() => {
+        if (typeof tourView !== "undefined") tourView.startTour();
+      }, 700);
+    }
   },
 
   openCopyBudgetModal() {

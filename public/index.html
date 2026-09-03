@@ -182,6 +182,10 @@
           <span>🏦</span> Simulate Bank Pay
         </button>
 
+        <button class="btn btn-secondary btn-sm" onclick="tourView.startTour()" title="Start interactive guided tour" style="border-color: #818cf8; color: #a5b4fc;">
+          <span>✨</span> Quick Tour
+        </button>
+
         <!-- User Profile Pill -->
         <div class="user-pill" onclick="app.openCurrencyModal()" style="cursor: pointer;" title="Account Settings">
           <img class="user-avatar" id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Prateek" alt="User Avatar">
@@ -941,6 +945,34 @@
     </div>
   </div>
 
+  
+  <!-- INTERACTIVE GUIDED TOUR MODAL -->
+  <div class="tour-overlay" id="guideTourModal">
+    <div class="tour-card">
+      <div id="tourStepBadge" class="tour-step-badge">Step 1 of 5 • Command Center</div>
+      <h2 id="tourStepTitle" class="tour-title">Welcome to SplitSmart AI</h2>
+      <p id="tourStepDesc" class="tour-description">
+        This is your Overview Dashboard. Get an instant, unified pulse of your monthly paycheck, total budget allocated, actual spending so far, and your AI-projected savings trajectory.
+      </p>
+
+      <div id="tourStepTip" class="tour-tip-box">
+        💡 Tip: Check your budget burn pace bar in the center to ensure you aren't spending too fast early in the month.
+      </div>
+
+      <div class="tour-progress-bar" id="tourProgressDots">
+        <!-- 5 Progress Dots -->
+      </div>
+
+      <div class="tour-footer">
+        <button type="button" class="tour-btn-skip" onclick="tourView.closeTour()">Skip Tour</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="tourPrevBtn" onclick="tourView.prev()">← Back</button>
+          <button type="button" class="btn btn-primary btn-sm" id="tourNextBtn" onclick="tourView.next()">Next Feature →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -949,6 +981,7 @@
   <script src="js/splitView.js"></script>
   <script src="js/aiView.js"></script>
   <script src="js/bankView.js"></script>
+  <script src="js/tourView.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
