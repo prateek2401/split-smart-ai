@@ -311,23 +311,79 @@ const app = {
     }
   },
 
-  async handleGoogleSSO() {
-    const email = "prateek.joshi.google@gmail.com";
-    const name = "Prateek Joshi";
-    const avatar = "https://api.dicebear.com/7.x/bottts/svg?seed=GooglePrateek";
+  tempGoogleAccount: null,
 
+  handleGoogleSSO() {
+    // Open realistic Google Account Chooser popup
+    const modal = document.getElementById("googleAccountModal");
+    const chooser = document.getElementById("googleChooserScreen");
+    const consent = document.getElementById("googleConsentScreen");
+    const customArea = document.getElementById("customGoogleInputArea");
+
+    if (chooser) chooser.style.display = "block";
+    if (consent) consent.style.display = "none";
+    if (customArea) customArea.style.display = "none";
+    if (modal) modal.classList.add("open");
+  },
+
+  closeGoogleModal() {
+    const modal = document.getElementById("googleAccountModal");
+    if (modal) modal.classList.remove("open");
+  },
+
+  pickGoogleAccount(email, name, avatar) {
+    this.tempGoogleAccount = { email, name, avatar };
+    const chooser = document.getElementById("googleChooserScreen");
+    const consent = document.getElementById("googleConsentScreen");
+    const badge = document.getElementById("consentAccountBadge");
+
+    if (badge) badge.textContent = `Signed in as ${email}`;
+    if (chooser) chooser.style.display = "none";
+    if (consent) consent.style.display = "block";
+  },
+
+  toggleCustomGoogleInput() {
+    const area = document.getElementById("customGoogleInputArea");
+    if (area) {
+      area.style.display = area.style.display === "none" ? "block" : "none";
+    }
+  },
+
+  submitCustomGoogleAccount() {
+    const email = document.getElementById("customGoogleEmail")?.value?.trim();
+    const name = document.getElementById("customGoogleName")?.value?.trim() || "Google User";
+    if (!email || !email.includes("@")) {
+      this.showToast("❌ Please enter a valid Gmail address");
+      return;
+    }
+    const avatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(email)}`;
+    this.pickGoogleAccount(email, name, avatar);
+  },
+
+  backToGoogleChooser() {
+    const chooser = document.getElementById("googleChooserScreen");
+    const consent = document.getElementById("googleConsentScreen");
+    if (chooser) chooser.style.display = "block";
+    if (consent) consent.style.display = "none";
+  },
+
+  async confirmGoogleLogin() {
+    if (!this.tempGoogleAccount) return;
     try {
       const res = await fetch("/api/auth/google-sso", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, avatar })
+        body: JSON.stringify(this.tempGoogleAccount)
       });
       const data = await res.json();
       if (data.success) {
-        this.loginSuccess(data.data, "Signed in with Google SSO!");
+        this.closeGoogleModal();
+        this.loginSuccess(data.data, `Signed in with Google as ${data.data.name}!`);
+      } else {
+        this.showToast("❌ " + data.error);
       }
     } catch (err) {
-      this.showToast("❌ Google SSO Failed");
+      this.showToast("❌ Google sign-in failed");
     }
   },
 
