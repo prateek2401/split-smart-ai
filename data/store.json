@@ -1,10 +1,14 @@
 {
   "currentUser": {
-    "id": "user-me",
-    "name": "Prateek (You)",
-    "email": "prateek@example.com",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Prateek",
-    "currency": "$"
+    "id": "user-1788407523490",
+    "name": "Prateek Joshi",
+    "email": "prateek.joshi.google@gmail.com",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GooglePrateek",
+    "currency": "₹",
+    "currencyCode": "INR",
+    "authProvider": "GOOGLE",
+    "hasCompletedOnboarding": false,
+    "createdAt": "2026-09-03T03:52:03.490Z"
   },
   "monthlyBudget": {
     "month": "2026-09",
@@ -308,24 +312,16 @@
       "toUserId": "friend-2",
       "amount": 30,
       "date": "2026-09-03T03:35:20.886Z"
-    }
-  ],
-  "pendingBankTransactions": [
+    },
     {
-      "id": "bank-tx-1788406910248",
-      "bankName": "Chase Bank ••4829",
-      "merchant": "Apex Property Management (Apartment Rent)",
-      "amount": 1500,
-      "date": "2026-09-03T03:41:50.248Z",
-      "rawDescription": "ACH DEBIT APEX PROP MGMT RENT 09/26",
-      "detectedCategory": "cat-rent",
-      "suggestedGroup": "group-flat",
-      "suggestedGroupName": "Flat #402 Roommates",
-      "splitCount": 3,
-      "perPersonShare": 500,
-      "status": "PENDING_REVIEW"
+      "id": "set-1788407407981",
+      "fromUserId": "user-me",
+      "toUserId": "friend-2",
+      "amount": 10,
+      "date": "2026-09-03T03:50:07.981Z"
     }
   ],
+  "pendingBankTransactions": [],
   "notifications": [
     {
       "id": "notif-1788406906902",
@@ -342,6 +338,199 @@
       "timestamp": "2026-09-02T10:01:00Z",
       "type": "EXPENSE_ADDED",
       "targetGroup": "Flat #402 Roommates"
+    }
+  ],
+  "users": [
+    {
+      "id": "user-1788407523490",
+      "name": "Prateek Joshi",
+      "email": "prateek.joshi.google@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GooglePrateek",
+      "currency": "₹",
+      "currencyCode": "INR",
+      "authProvider": "GOOGLE",
+      "hasCompletedOnboarding": false,
+      "createdAt": "2026-09-03T03:52:03.490Z"
+    }
+  ],
+  "monthlyBudgets": {
+    "2026-09": {
+      "month": "2026-09",
+      "totalIncome": 5200,
+      "targetSavings": 1200,
+      "categories": [
+        {
+          "id": "cat-rent",
+          "name": "Rent",
+          "icon": "🏠",
+          "color": "#6366f1",
+          "allocated": 1500,
+          "isFixed": true,
+          "dueDay": 5
+        },
+        {
+          "id": "cat-emi",
+          "name": "EMI / Loans",
+          "icon": "🏦",
+          "color": "#ec4899",
+          "allocated": 600,
+          "isFixed": true,
+          "dueDay": 10
+        },
+        {
+          "id": "cat-bills",
+          "name": "Bills & Utilities",
+          "icon": "💡",
+          "color": "#f59e0b",
+          "allocated": 350,
+          "isFixed": true,
+          "dueDay": 15
+        },
+        {
+          "id": "cat-grocery",
+          "name": "Grocery & Pantry",
+          "icon": "🛒",
+          "color": "#10b981",
+          "allocated": 550,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-petrol",
+          "name": "Petrol & Transit",
+          "icon": "⛽",
+          "color": "#06b6d4",
+          "allocated": 280,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-dining",
+          "name": "Dining & Takeout",
+          "icon": "🍕",
+          "color": "#f43f5e",
+          "allocated": 420,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-personal",
+          "name": "Personal & Shopping",
+          "icon": "🎉",
+          "color": "#8b5cf6",
+          "allocated": 300,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-health",
+          "name": "Health & Care",
+          "icon": "💊",
+          "color": "#14b8a6",
+          "allocated": 150,
+          "isFixed": false,
+          "dueDay": null
+        }
+      ]
+    },
+    "2026-10": {
+      "month": "2026-10",
+      "totalIncome": 5200,
+      "targetSavings": 1200,
+      "categories": [
+        {
+          "id": "cat-rent",
+          "name": "Rent",
+          "icon": "🏠",
+          "color": "#6366f1",
+          "allocated": 1500,
+          "isFixed": true,
+          "dueDay": 5
+        },
+        {
+          "id": "cat-emi",
+          "name": "EMI / Loans",
+          "icon": "🏦",
+          "color": "#ec4899",
+          "allocated": 600,
+          "isFixed": true,
+          "dueDay": 10
+        },
+        {
+          "id": "cat-bills",
+          "name": "Bills & Utilities",
+          "icon": "💡",
+          "color": "#f59e0b",
+          "allocated": 350,
+          "isFixed": true,
+          "dueDay": 15
+        },
+        {
+          "id": "cat-grocery",
+          "name": "Grocery & Pantry",
+          "icon": "🛒",
+          "color": "#10b981",
+          "allocated": 550,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-petrol",
+          "name": "Petrol & Transit",
+          "icon": "⛽",
+          "color": "#06b6d4",
+          "allocated": 280,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-dining",
+          "name": "Dining & Takeout",
+          "icon": "🍕",
+          "color": "#f43f5e",
+          "allocated": 420,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-personal",
+          "name": "Personal & Shopping",
+          "icon": "🎉",
+          "color": "#8b5cf6",
+          "allocated": 300,
+          "isFixed": false,
+          "dueDay": null
+        },
+        {
+          "id": "cat-health",
+          "name": "Health & Care",
+          "icon": "💊",
+          "color": "#14b8a6",
+          "allocated": 150,
+          "isFixed": false,
+          "dueDay": null
+        }
+      ]
+    }
+  },
+  "seasonalPayments": [
+    {
+      "id": "season-1",
+      "title": "Annual Car & Health Insurance Premium",
+      "amount": 650,
+      "categoryId": "cat-health",
+      "appliesToMonth": "2026-10",
+      "icon": "🛡️",
+      "isPaid": false
+    },
+    {
+      "id": "season-1788407523569",
+      "title": "Annual Comprehensive Car Insurance",
+      "amount": 650,
+      "categoryId": "cat-health",
+      "appliesToMonth": "2026-10",
+      "icon": "🛡️",
+      "isPaid": false
     }
   ]
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SplitSmart AI | Intelligent Budget Allocation & Splitwise</title>
+  <title>SplitSmart AI | Intelligent Budget Allocation, Splitwise & AI Predictor</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/components.css">
 </head>
@@ -24,9 +24,19 @@
       </div>
 
       <div class="header-actions">
-        <div class="month-badge" id="headerMonth">
-          <span>📅</span> <span>September 2026</span>
-        </div>
+        <!-- Month Switcher Dropdown -->
+        <select id="headerMonthSelect" class="month-select" onchange="app.switchMonth(this.value)">
+          <option value="2026-09" selected>📅 September 2026</option>
+          <option value="2026-10">📅 October 2026</option>
+          <option value="2026-11">📅 November 2026</option>
+          <option value="2026-12">📅 December 2026</option>
+        </select>
+
+        <!-- Currency Selector Button -->
+        <button class="btn btn-secondary btn-sm" onclick="app.openCurrencyModal()" id="currencyBtn" title="Change preferred currency">
+          <span id="currencySymbolIcon">💵</span> <span id="currentCurrencyBadge">$ USD</span>
+        </button>
+
         <button class="btn btn-primary btn-sm" onclick="app.openAddExpenseModal()">
           <span>+</span> Add Expense
         </button>
@@ -36,9 +46,12 @@
         <button class="btn btn-secondary btn-sm" onclick="bankView.simulateTransaction('rent')" title="Simulate bank debit webhook">
           <span>🏦</span> Simulate Bank Pay
         </button>
-        <div class="user-pill">
+
+        <!-- User Profile / Auth Pill -->
+        <div class="user-pill" onclick="app.openAuthModal()" style="cursor: pointer;" title="Sign in or switch account">
           <img class="user-avatar" id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Prateek" alt="User Avatar">
           <span class="user-name" id="userName">Prateek</span>
+          <span style="font-size: 0.7rem; color: #818cf8;">▾</span>
         </div>
       </div>
     </header>
@@ -76,7 +89,7 @@
             <span>💰</span>
           </div>
           <div class="stat-value" id="dashTotalIncome">$5,200</div>
-          <div class="stat-subtext">Active budget pool</div>
+          <div class="stat-subtext" id="dashActiveMonthLabel">Active month pool</div>
         </div>
 
         <div class="stat-card">
@@ -121,7 +134,7 @@
             </div>
           </div>
           <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;" id="dashAiSummaryText">
-            At your current variable velocity of $48.20/day, you are projected to save <strong>$1,350</strong> by month-end, exceeding your target by $150.
+            At your current variable velocity, you are projected to reach your month-end savings goal.
           </p>
           <div class="progress-bar-container">
             <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
@@ -157,8 +170,8 @@
             </div>
             <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-sm); padding: 12px 14px;">
               <div style="font-size: 0.78rem; color: #fca5a5; font-weight: 600;">YOU OWE</div>
-              <div style="font-size: 1.4rem; font-weight: 700; color: #ef4444;" id="dashOweAmount">$30.00</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">From roadtrip dinner</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #ef4444;" id="dashOweAmount">$0.00</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">All debts settled</div>
             </div>
           </div>
 
@@ -200,11 +213,13 @@
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header">
           <div>
-            <h2 class="card-title">🎯 Start-of-Month Budget Allocator</h2>
-            <p class="card-subtitle">Allocate your monthly income across essential & discretionary categories before spending begins.</p>
+            <h2 class="card-title">🎯 Start-of-Month Budget Allocator (<span id="allocatorMonthDisplay">September 2026</span>)</h2>
+            <p class="card-subtitle">Allocate your monthly income across categories before spending begins, or copy from another month.</p>
           </div>
-          <div style="display: flex; gap: 10px;">
-            <button class="btn btn-secondary btn-sm" onclick="app.openAddCategoryModal()">+ Add Custom Category</button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="app.openCopyBudgetModal()">📋 Copy to Month</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.openSeasonalModal()">🛡️ Add Insurance / Dues</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.openAddCategoryModal()">+ Add Category</button>
             <button class="btn btn-success btn-sm" onclick="budgetView.saveAllocations()">💾 Save Allocations</button>
           </div>
         </div>
@@ -212,11 +227,11 @@
         <!-- Income & Target Settings Form -->
         <div class="grid-3" style="margin-bottom: 20px;">
           <div class="form-group">
-            <label class="form-label">Monthly Net Income</label>
+            <label class="form-label">Monthly Net Income (<span class="currency-label">$</span>)</label>
             <input type="number" id="allocIncomeInput" class="form-input" value="5200" oninput="budgetView.recalculatePool()">
           </div>
           <div class="form-group">
-            <label class="form-label">Monthly Target Savings Goal</label>
+            <label class="form-label">Target Savings Goal (<span class="currency-label">$</span>)</label>
             <input type="number" id="allocTargetInput" class="form-input" value="1200" oninput="budgetView.recalculatePool()">
           </div>
           <div class="form-group">
@@ -236,7 +251,19 @@
         </div>
       </div>
 
+      <!-- Month-Specific Seasonal Commitments (Insurance, Taxes) -->
+      <div id="seasonalPaymentsSection" style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700;">🛡️ Month-Specific & Seasonal Commitments</h3>
+          <button class="btn btn-secondary btn-sm" onclick="app.openSeasonalModal()">+ Add Seasonal Bill</button>
+        </div>
+        <div id="seasonalPaymentsList">
+          <!-- Seasonal cards rendered dynamically -->
+        </div>
+      </div>
+
       <!-- Category Allocation Cards Grid -->
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 14px;">📦 Category Budget Pools</h3>
       <div class="grid-3" id="categoriesGrid">
         <!-- Dynamically rendered category cards with sliders -->
       </div>
@@ -244,7 +271,6 @@
 
     <!-- TAB 3: SPLITWISE HUB -->
     <section id="tab-splitwise" class="tab-pane">
-      <!-- Balance Banner -->
       <div class="grid-3" style="margin-bottom: 24px;">
         <div class="stat-card" style="border-left: 4px solid #10b981;">
           <div class="stat-label">TOTAL OWED TO YOU</div>
@@ -254,13 +280,13 @@
 
         <div class="stat-card" style="border-left: 4px solid #ef4444;">
           <div class="stat-label">TOTAL YOU OWE</div>
-          <div class="stat-value text-danger" id="splitTotalOwe">$30.00</div>
+          <div class="stat-value text-danger" id="splitTotalOwe">$0.00</div>
           <div class="stat-subtext">Pending payment from you</div>
         </div>
 
         <div class="stat-card" style="border-left: 4px solid #6366f1;">
           <div class="stat-label">NET BALANCE</div>
-          <div class="stat-value text-cyan" id="splitNetBalance">+$120.00</div>
+          <div class="stat-value text-cyan" id="splitNetBalance">+$150.00</div>
           <div class="stat-subtext">Overall Splitwise standing</div>
         </div>
       </div>
@@ -276,7 +302,7 @@
             <button class="btn btn-primary btn-sm" onclick="app.openSettleModal()">⚡ Settle Up</button>
           </div>
           <div style="display: flex; flex-direction: column; gap: 12px;" id="friendsBalanceList">
-            <!-- Dynamically populated friends cards -->
+            <!-- Friends cards -->
           </div>
         </div>
 
@@ -300,7 +326,7 @@
           <div>
             <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Simplified Settlement Plan</h4>
             <div id="simplifiedDebtsContainer" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Dynamic simplified transfer instructions -->
+              <!-- Simplified transfer instructions -->
             </div>
           </div>
         </div>
@@ -309,7 +335,6 @@
 
     <!-- TAB 4: AI SAVINGS & FORECAST -->
     <section id="tab-ai-predictions" class="tab-pane">
-      <!-- AI Hero Forecast Widget -->
       <div class="card ai-hero-card" style="margin-bottom: 24px;">
         <div class="card-header">
           <div>
@@ -344,18 +369,18 @@
       </div>
 
       <div class="grid-2" style="margin-bottom: 24px;">
-        <!-- AI Actionable Recommendations & Leak Alerts -->
+        <!-- AI Recommendations -->
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">💡 AI Financial Coach & Leak Alerts</h2>
             <span style="font-size: 0.8rem; color: var(--text-muted);">Real-time pattern analysis</span>
           </div>
           <div id="aiRecommendationsList">
-            <!-- Dynamic AI advice cards -->
+            <!-- AI advice cards -->
           </div>
         </div>
 
-        <!-- Interactive What-If Simulator -->
+        <!-- What-If Simulator -->
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">🎛️ AI What-If Scenario Simulator</h2>
@@ -382,12 +407,210 @@
           </div>
 
           <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;" id="simAnalysisText">
-            Trimming dining and impulse shopping by 10% redirects $142 each month straight into high-yield savings or index investments.
+            Trimming dining and impulse shopping by 10% redirects additional savings each month into investments.
           </p>
         </div>
       </div>
     </section>
 
+  </div>
+
+  <!-- MODAL: AUTH / GOOGLE SSO & REGISTER -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 class="card-title">🔑 Sign in to SplitSmart AI</h2>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <!-- Google SSO Button -->
+      <button class="btn-google" onclick="app.handleGoogleSSO()">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="auth-divider">OR CONTINUE WITH EMAIL</div>
+
+      <!-- Auth Tabs: Login vs Register -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <button type="button" class="btn btn-secondary btn-sm" id="authTabLogin" onclick="app.switchAuthTab('login')" style="flex: 1; background: rgba(99, 102, 241, 0.2); border-color: #6366f1;">Login</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="authTabRegister" onclick="app.switchAuthTab('register')" style="flex: 1;">Register</button>
+      </div>
+
+      <form id="authForm" onsubmit="app.handleAuthSubmit(event)">
+        <div class="form-group" id="authNameGroup" style="display: none;">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="authNameInput" class="form-input" placeholder="e.g. Prateek Joshi">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="authEmailInput" class="form-input" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="authPasswordInput" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="authSubmitBtn">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CURRENCY & ONBOARDING SELECTION -->
+  <div class="modal-overlay" id="currencyModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">💱 Select Preferred Currency</h2>
+          <p class="card-subtitle">Choose how you want monetary amounts formatted across the entire platform.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <div class="currency-grid">
+        <div class="currency-card active" data-curr="$" data-code="USD" onclick="app.selectCurrencyCard('$', 'USD', this)">
+          <div class="currency-symbol-big">$</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;">US Dollar</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">USD ($)</div>
+          </div>
+        </div>
+
+        <div class="currency-card" data-curr="₹" data-code="INR" onclick="app.selectCurrencyCard('₹', 'INR', this)">
+          <div class="currency-symbol-big" style="color: #10b981;">₹</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;">Indian Rupee</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">INR (₹)</div>
+          </div>
+        </div>
+
+        <div class="currency-card" data-curr="€" data-code="EUR" onclick="app.selectCurrencyCard('€', 'EUR', this)">
+          <div class="currency-symbol-big" style="color: #f59e0b;">€</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;">Euro</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">EUR (€)</div>
+          </div>
+        </div>
+
+        <div class="currency-card" data-curr="£" data-code="GBP" onclick="app.selectCurrencyCard('£', 'GBP', this)">
+          <div class="currency-symbol-big" style="color: #ec4899;">£</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;">British Pound</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">GBP (£)</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="app.saveSelectedCurrency()">Save Currency Setting</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: COPY BUDGET TO MONTH -->
+  <div class="modal-overlay" id="copyBudgetModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 class="card-title">📋 Duplicate Monthly Allocations</h2>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+        Copy your budget baseline categories, income, and targets from one month into another with 1-click.
+      </p>
+
+      <form onsubmit="budgetView.submitCopyBudget(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Source Month</label>
+            <select id="copyFromMonth" class="form-select">
+              <option value="2026-09">September 2026</option>
+              <option value="2026-10">October 2026</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Month to Duplicate To</label>
+            <select id="copyToMonth" class="form-select">
+              <option value="2026-10">October 2026</option>
+              <option value="2026-11">November 2026</option>
+              <option value="2026-12">December 2026</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-success">Duplicate Allocations</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD SEASONAL BILL (INSURANCE, DUES) -->
+  <div class="modal-overlay" id="seasonalModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 class="card-title">🛡️ Add Month-Specific / Seasonal Payment</h2>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+        Add commitments that only occur in specific months (e.g. Annual Car Insurance, Life Insurance, Annual Property Tax).
+      </p>
+
+      <form onsubmit="budgetView.submitSeasonalPayment(event)">
+        <div class="form-group">
+          <label class="form-label">Commitment Title</label>
+          <input type="text" id="seasonalTitleInput" class="form-input" placeholder="e.g. Annual Car Insurance, Term Life Insurance" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Amount (<span class="currency-label">$</span>)</label>
+            <input type="number" step="0.01" id="seasonalAmountInput" class="form-input" placeholder="650.00" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Due Month</label>
+            <select id="seasonalMonthInput" class="form-select">
+              <option value="2026-10">October 2026</option>
+              <option value="2026-11">November 2026</option>
+              <option value="2026-12">December 2026</option>
+              <option value="2026-09">September 2026</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Icon</label>
+            <input type="text" id="seasonalIconInput" class="form-input" value="🛡️" maxlength="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="seasonalCategoryInput" class="form-select">
+              <option value="cat-health">💊 Health & Care</option>
+              <option value="cat-bills">💡 Bills & Utilities</option>
+              <option value="cat-personal">🎉 Personal & Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Seasonal Payment</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- MODAL: ADD EXPENSE -->
@@ -406,7 +629,7 @@
 
         <div class="grid-2">
           <div class="form-group">
-            <label class="form-label">Total Amount ($)</label>
+            <label class="form-label">Total Amount (<span class="currency-label">$</span>)</label>
             <input type="number" step="0.01" id="expAmount" class="form-input" placeholder="0.00" required>
           </div>
           <div class="form-group">
@@ -429,7 +652,6 @@
               <label class="form-label">Group / Participants</label>
               <select id="expGroup" class="form-select" onchange="splitView.onGroupSelect(this.value)">
                 <option value="">Direct with Individual Friends</option>
-                <!-- Group options -->
               </select>
             </div>
 
@@ -474,7 +696,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Settlement Amount ($)</label>
+          <label class="form-label">Settlement Amount (<span class="currency-label">$</span>)</label>
           <input type="number" step="0.01" id="settleAmountInput" class="form-input" placeholder="0.00" required>
         </div>
 
@@ -506,7 +728,7 @@
             <input type="text" id="catIconInput" class="form-input" value="🏷️" maxlength="2">
           </div>
           <div class="form-group">
-            <label class="form-label">Monthly Allocation ($)</label>
+            <label class="form-label">Monthly Allocation (<span class="currency-label">$</span>)</label>
             <input type="number" id="catAllocInput" class="form-input" placeholder="100" required>
           </div>
         </div>
