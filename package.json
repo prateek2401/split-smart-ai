@@ -1,0 +1,23 @@
+{
+  "name": "split-smart-ai",
+  "version": "1.0.0",
+  "description": "Splitwise with Start-of-Month Budget Allocations and AI Savings Prediction Engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "keywords": [
+    "splitwise",
+    "budget",
+    "expense-tracker",
+    "ai-predictor",
+    "savings"
+  ],
+  "author": "SplitSmart AI Team",
+  "license": "MIT"
+}

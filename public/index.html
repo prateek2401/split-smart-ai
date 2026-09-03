@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SplitSmart AI | Intelligent Budget Allocation & Splitwise</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo">⚡</div>
+        <div>
+          <div style="display: flex; align-items: center;">
+            <h1 class="brand-title">SplitSmart <span style="color: #818cf8;">AI</span></h1>
+            <span class="brand-badge">Intelligent FinDesk</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Start-of-Month Allocations • Splitwise Engine • AI Savings Forecast</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="month-badge" id="headerMonth">
+          <span>📅</span> <span>September 2026</span>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="app.openAddExpenseModal()">
+          <span>+</span> Add Expense
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="app.openSettleModal()">
+          <span>⚡</span> Settle Up
+        </button>
+        <div class="user-pill">
+          <img class="user-avatar" id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Prateek" alt="User Avatar">
+          <span class="user-name" id="userName">Prateek</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs-wrapper">
+      <button class="nav-tab active" data-tab="dashboard">
+        <span class="nav-tab-icon">📊</span>
+        <span>Overview Dashboard</span>
+      </button>
+      <button class="nav-tab" data-tab="allocator">
+        <span class="nav-tab-icon">🎯</span>
+        <span>Start-of-Month Allocator</span>
+      </button>
+      <button class="nav-tab" data-tab="splitwise">
+        <span class="nav-tab-icon">👥</span>
+        <span>Splitwise Hub</span>
+      </button>
+      <button class="nav-tab" data-tab="ai-predictions">
+        <span class="nav-tab-icon">🤖</span>
+        <span>AI Savings & Forecast</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW DASHBOARD -->
+    <main id="tab-dashboard" class="tab-pane active">
+      <!-- High Level Metrics -->
+      <div class="grid-4" style="margin-bottom: 24px;">
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>TOTAL MONTHLY INCOME</span>
+            <span>💰</span>
+          </div>
+          <div class="stat-value" id="dashTotalIncome">$5,200</div>
+          <div class="stat-subtext">Active budget pool</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>BUDGET ALLOCATED</span>
+            <span>🎯</span>
+          </div>
+          <div class="stat-value text-cyan" id="dashAllocated">$4,100</div>
+          <div class="stat-subtext" id="dashUnallocated">$100 unallocated cushion</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>NET SPENT SO FAR</span>
+            <span>💳</span>
+          </div>
+          <div class="stat-value text-warning" id="dashTotalSpent">$1,902</div>
+          <div class="stat-subtext" id="dashRemaining">$2,198 remaining</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>AI PROJECTED SAVINGS</span>
+            <span class="ai-pill">AI Engine</span>
+          </div>
+          <div class="stat-value text-success" id="dashPredictedSavings">$1,350</div>
+          <div class="stat-subtext" id="dashSavingsVariance">+112% of savings goal</div>
+        </div>
+      </div>
+
+      <!-- Live Burn Rate & Splitwise Summary Banner -->
+      <div class="grid-2" style="margin-bottom: 24px;">
+        <!-- AI Month-End Quick Card -->
+        <div class="card ai-hero-card">
+          <div class="card-header">
+            <div>
+              <span class="ai-pill">✨ Month-End Forecast</span>
+              <h2 class="card-title" style="margin-top: 8px;">Savings Trajectory & Burn Velocity</h2>
+            </div>
+            <div id="dashAiStatusBadge" class="category-badge badge-variable" style="font-size: 0.8rem; padding: 4px 10px;">
+              ● ON TRACK
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;" id="dashAiSummaryText">
+            At your current variable velocity of $48.20/day, you are projected to save <strong>$1,350</strong> by month-end, exceeding your target by $150.
+          </p>
+          <div class="progress-bar-container">
+            <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
+              <span>Monthly Budget Burn Pace</span>
+              <span id="dashBurnPercent">46% Spent</span>
+            </div>
+            <div class="progress-track">
+              <div id="dashBurnBar" class="progress-fill healthy" style="width: 46%;"></div>
+            </div>
+          </div>
+          <div style="margin-top: 18px; display: flex; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="app.switchTab('ai-predictions')">
+              Deep AI Insights & Annual Forecast →
+            </button>
+          </div>
+        </div>
+
+        <!-- Splitwise Snapshot -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">👥 Splitwise Balances</h2>
+              <p class="card-subtitle">Shared group & friend expenses</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="app.switchTab('splitwise')">View Full Hub</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 0.78rem; color: #6ee7b7; font-weight: 600;">YOU ARE OWED</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #10b981;" id="dashOwedAmount">$150.00</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">From shared groceries & bills</div>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 0.78rem; color: #fca5a5; font-weight: 600;">YOU OWE</div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #ef4444;" id="dashOweAmount">$30.00</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">From roadtrip dinner</div>
+            </div>
+          </div>
+
+          <div id="dashSimplifiedDebtList" style="font-size: 0.85rem; color: var(--text-secondary);">
+            <!-- Dynamic debt summary -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Expenses Activity -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🕒 Recent Transaction Ledger</h2>
+          <button class="btn btn-primary btn-sm" onclick="app.openAddExpenseModal()">+ Add New Expense</button>
+        </div>
+        <div class="transaction-list" id="dashRecentExpenses">
+          <!-- Dynamic recent transactions -->
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: START-OF-MONTH ALLOCATOR -->
+    <section id="tab-allocator" class="tab-pane">
+      <!-- Allocator Header & Pool Status -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🎯 Start-of-Month Budget Allocator</h2>
+            <p class="card-subtitle">Allocate your monthly income across essential & discretionary categories before spending begins.</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="app.openAddCategoryModal()">+ Add Custom Category</button>
+            <button class="btn btn-success btn-sm" onclick="budgetView.saveAllocations()">💾 Save Allocations</button>
+          </div>
+        </div>
+
+        <!-- Income & Target Settings Form -->
+        <div class="grid-3" style="margin-bottom: 20px;">
+          <div class="form-group">
+            <label class="form-label">Monthly Net Income</label>
+            <input type="number" id="allocIncomeInput" class="form-input" value="5200" oninput="budgetView.recalculatePool()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monthly Target Savings Goal</label>
+            <input type="number" id="allocTargetInput" class="form-input" value="1200" oninput="budgetView.recalculatePool()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Available Cushion (Unallocated)</label>
+            <div id="allocCushionDisplay" style="font-size: 1.5rem; font-weight: 800; color: #10b981; padding-top: 4px;">$100</div>
+          </div>
+        </div>
+
+        <div class="progress-bar-container">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+            <span>Allocation Pool Distribution</span>
+            <span id="allocPoolStatus">100% of income committed</span>
+          </div>
+          <div class="progress-track" style="height: 10px;">
+            <div id="allocPoolBar" class="progress-fill healthy" style="width: 98%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Allocation Cards Grid -->
+      <div class="grid-3" id="categoriesGrid">
+        <!-- Dynamically rendered category cards with sliders -->
+      </div>
+    </section>
+
+    <!-- TAB 3: SPLITWISE HUB -->
+    <section id="tab-splitwise" class="tab-pane">
+      <!-- Balance Banner -->
+      <div class="grid-3" style="margin-bottom: 24px;">
+        <div class="stat-card" style="border-left: 4px solid #10b981;">
+          <div class="stat-label">TOTAL OWED TO YOU</div>
+          <div class="stat-value text-success" id="splitTotalOwed">$150.00</div>
+          <div class="stat-subtext">Friends owe you for shared bills</div>
+        </div>
+
+        <div class="stat-card" style="border-left: 4px solid #ef4444;">
+          <div class="stat-label">TOTAL YOU OWE</div>
+          <div class="stat-value text-danger" id="splitTotalOwe">$30.00</div>
+          <div class="stat-subtext">Pending payment from you</div>
+        </div>
+
+        <div class="stat-card" style="border-left: 4px solid #6366f1;">
+          <div class="stat-label">NET BALANCE</div>
+          <div class="stat-value text-cyan" id="splitNetBalance">+$120.00</div>
+          <div class="stat-subtext">Overall Splitwise standing</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Friends & Balance Ledger -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">👥 Friends & Pairwise Balances</h2>
+              <p class="card-subtitle">Real-time balances with your contacts</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="app.openSettleModal()">⚡ Settle Up</button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;" id="friendsBalanceList">
+            <!-- Dynamically populated friends cards -->
+          </div>
+        </div>
+
+        <!-- Groups & Debt Simplification -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🏢 Groups & Debt Simplification</h2>
+              <p class="card-subtitle">Minimum transactions needed to settle all debts</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="app.openAddExpenseModal(true)">+ Split Expense</button>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Active Groups</h4>
+            <div id="groupsList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <!-- Groups badges -->
+            </div>
+          </div>
+
+          <div>
+            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Simplified Settlement Plan</h4>
+            <div id="simplifiedDebtsContainer" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Dynamic simplified transfer instructions -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: AI SAVINGS & FORECAST -->
+    <section id="tab-ai-predictions" class="tab-pane">
+      <!-- AI Hero Forecast Widget -->
+      <div class="card ai-hero-card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div>
+            <span class="ai-pill">✨ Predictive Financial Model</span>
+            <h2 class="card-title" style="margin-top: 8px; font-size: 1.5rem;">Month-End & Annual Savings Forecast</h2>
+            <p class="card-subtitle">Simulates your daily velocity, fixed commitments, and category trajectories.</p>
+          </div>
+          <div id="aiStatusPill" class="category-badge badge-variable" style="font-size: 0.9rem; padding: 6px 14px;">
+            ● ON TRACK
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 14px;">
+          <div class="stat-card" style="background: rgba(0,0,0,0.25);">
+            <div class="stat-label">PROJECTED MONTH-END SAVINGS</div>
+            <div class="stat-value text-success" id="aiPredictedSavings">$1,350</div>
+            <div class="stat-subtext" id="aiSavingsVarianceText">+$150 above target</div>
+          </div>
+
+          <div class="stat-card" style="background: rgba(0,0,0,0.25);">
+            <div class="stat-label">DAILY VARIABLE BURN RATE</div>
+            <div class="stat-value text-warning" id="aiDailyVelocity">$48.20/day</div>
+            <div class="stat-subtext" id="aiVelocityComparison">Within safe pace</div>
+          </div>
+
+          <div class="stat-card" style="background: rgba(0,0,0,0.25);">
+            <div class="stat-label">12-MONTH ANNUAL PROJECTION</div>
+            <div class="stat-value text-cyan" id="aiAnnualSavings">$16,200</div>
+            <div class="stat-subtext" id="aiCompoundText">~$16,929 with 7% returns</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 24px;">
+        <!-- AI Actionable Recommendations & Leak Alerts -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">💡 AI Financial Coach & Leak Alerts</h2>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Real-time pattern analysis</span>
+          </div>
+          <div id="aiRecommendationsList">
+            <!-- Dynamic AI advice cards -->
+          </div>
+        </div>
+
+        <!-- Interactive What-If Simulator -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🎛️ AI What-If Scenario Simulator</h2>
+            <p class="card-subtitle">See how optimizing discretionary spending impacts annual net wealth</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label class="form-label" style="display: flex; justify-content: space-between;">
+              <span>Discretionary Spend Reduction:</span>
+              <strong id="simulatorPercentLabel" style="color: #818cf8;">10% Cut</strong>
+            </label>
+            <input type="range" min="0" max="30" step="5" value="10" class="range-slider" id="simulatorSlider" oninput="aiView.updateSimulator(this.value)">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-sm); padding: 14px;">
+              <div style="font-size: 0.8rem; color: #a5b4fc; font-weight: 600;">EXTRA MONTHLY SAVINGS</div>
+              <div style="font-size: 1.5rem; font-weight: 800; color: #6366f1;" id="simExtraMonthly">+$142</div>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 14px;">
+              <div style="font-size: 0.8rem; color: #6ee7b7; font-weight: 600;">EXTRA ANNUAL WEALTH</div>
+              <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;" id="simExtraAnnual">+$1,704</div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;" id="simAnalysisText">
+            Trimming dining and impulse shopping by 10% redirects $142 each month straight into high-yield savings or index investments.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL: ADD EXPENSE -->
+  <div class="modal-overlay" id="addExpenseModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 class="card-title">➕ Add New Expense</h2>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <form id="expenseForm" onsubmit="app.submitExpense(event)">
+        <div class="form-group">
+          <label class="form-label">Expense Title</label>
+          <input type="text" id="expTitle" class="form-input" placeholder="e.g. Costco Supermarket, Shell Fuel" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Total Amount ($)</label>
+            <input type="number" step="0.01" id="expAmount" class="form-input" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Budget Category</label>
+            <select id="expCategory" class="form-select">
+              <!-- Dynamically filled categories -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Splitwise Switch -->
+        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600;">
+            <input type="checkbox" id="expIsSplit" onchange="splitView.toggleSplitFields(this.checked)">
+            <span>👥 Split this expense with friends (Splitwise)</span>
+          </label>
+
+          <div id="splitOptionsArea" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-color);">
+            <div class="form-group">
+              <label class="form-label">Group / Participants</label>
+              <select id="expGroup" class="form-select" onchange="splitView.onGroupSelect(this.value)">
+                <option value="">Direct with Individual Friends</option>
+                <!-- Group options -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Select Friends Involved</label>
+              <div id="participantsCheckboxList" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Checkboxes for friends -->
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Split Type</label>
+              <select id="expSplitType" class="form-select">
+                <option value="EQUAL">Split Equally</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SETTLE UP -->
+  <div class="modal-overlay" id="settleModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 class="card-title">⚡ Settle Balance</h2>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <form id="settleForm" onsubmit="splitView.submitSettlement(event)">
+        <div class="form-group">
+          <label class="form-label">Select Friend</label>
+          <select id="settleFriendSelect" class="form-select" onchange="splitView.onSettleFriendChange(this.value)" required>
+            <!-- Friend options -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Settlement Amount ($)</label>
+          <input type="number" step="0.01" id="settleAmountInput" class="form-input" placeholder="0.00" required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-success">Confirm Settlement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD CATEGORY -->
+  <div class="modal-overlay" id="addCategoryModal">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 class="card-title">🏷️ Add Custom Category</h2>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeModals()">✕</button>
+      </div>
+
+      <form id="categoryForm" onsubmit="budgetView.submitNewCategory(event)">
+        <div class="form-group">
+          <label class="form-label">Category Name</label>
+          <input type="text" id="catNameInput" class="form-input" placeholder="e.g. Gym & Fitness, Subscriptions" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Emoji Icon</label>
+            <input type="text" id="catIconInput" class="form-input" value="🏷️" maxlength="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monthly Allocation ($)</label>
+            <input type="number" id="catAllocInput" class="form-input" placeholder="100" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer;">
+            <input type="checkbox" id="catIsFixedInput">
+            <span>Fixed Monthly Commitment (e.g. rent/bill due on specific day)</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/budgetView.js"></script>
+  <script src="js/splitView.js"></script>
+  <script src="js/aiView.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

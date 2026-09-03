@@ -1,0 +1,286 @@
+{
+  "currentUser": {
+    "id": "user-me",
+    "name": "Prateek (You)",
+    "email": "prateek@example.com",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Prateek",
+    "currency": "$"
+  },
+  "monthlyBudget": {
+    "month": "2026-09",
+    "totalIncome": 5200,
+    "targetSavings": 1200,
+    "categories": [
+      {
+        "id": "cat-rent",
+        "name": "Rent",
+        "icon": "🏠",
+        "color": "#6366f1",
+        "allocated": 1500,
+        "isFixed": true,
+        "dueDay": 5
+      },
+      {
+        "id": "cat-emi",
+        "name": "EMI / Loans",
+        "icon": "🏦",
+        "color": "#ec4899",
+        "allocated": 600,
+        "isFixed": true,
+        "dueDay": 10
+      },
+      {
+        "id": "cat-bills",
+        "name": "Bills & Utilities",
+        "icon": "💡",
+        "color": "#f59e0b",
+        "allocated": 350,
+        "isFixed": true,
+        "dueDay": 15
+      },
+      {
+        "id": "cat-grocery",
+        "name": "Grocery & Pantry",
+        "icon": "🛒",
+        "color": "#10b981",
+        "allocated": 550,
+        "isFixed": false,
+        "dueDay": null
+      },
+      {
+        "id": "cat-petrol",
+        "name": "Petrol & Transit",
+        "icon": "⛽",
+        "color": "#06b6d4",
+        "allocated": 280,
+        "isFixed": false,
+        "dueDay": null
+      },
+      {
+        "id": "cat-dining",
+        "name": "Dining & Takeout",
+        "icon": "🍕",
+        "color": "#f43f5e",
+        "allocated": 420,
+        "isFixed": false,
+        "dueDay": null
+      },
+      {
+        "id": "cat-personal",
+        "name": "Personal & Shopping",
+        "icon": "🎉",
+        "color": "#8b5cf6",
+        "allocated": 300,
+        "isFixed": false,
+        "dueDay": null
+      },
+      {
+        "id": "cat-health",
+        "name": "Health & Care",
+        "icon": "💊",
+        "color": "#14b8a6",
+        "allocated": 150,
+        "isFixed": false,
+        "dueDay": null
+      }
+    ]
+  },
+  "friends": [
+    {
+      "id": "friend-1",
+      "name": "Aarav",
+      "email": "aarav@example.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Aarav"
+    },
+    {
+      "id": "friend-2",
+      "name": "Neha",
+      "email": "neha@example.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Neha"
+    },
+    {
+      "id": "friend-3",
+      "name": "Rohan",
+      "email": "rohan@example.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Rohan"
+    },
+    {
+      "id": "friend-4",
+      "name": "Priya",
+      "email": "priya@example.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Priya"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group-flat",
+      "name": "Flat #402 Roommates",
+      "icon": "🏢",
+      "members": [
+        "user-me",
+        "friend-1",
+        "friend-3"
+      ]
+    },
+    {
+      "id": "group-trip",
+      "name": "Weekend Roadtrip",
+      "icon": "🚗",
+      "members": [
+        "user-me",
+        "friend-2",
+        "friend-3",
+        "friend-4"
+      ]
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp-1",
+      "title": "Apartment Monthly Rent",
+      "amount": 1500,
+      "categoryId": "cat-rent",
+      "date": "2026-09-02T10:00:00Z",
+      "paidBy": "user-me",
+      "isSplit": false,
+      "splitDetails": null
+    },
+    {
+      "id": "exp-2",
+      "title": "Costco Supermarket Restock",
+      "amount": 180,
+      "categoryId": "cat-grocery",
+      "date": "2026-09-02T16:30:00Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 60
+          },
+          {
+            "userId": "friend-1",
+            "amount": 60
+          },
+          {
+            "userId": "friend-3",
+            "amount": 60
+          }
+        ]
+      }
+    },
+    {
+      "id": "exp-3",
+      "title": "Shell Fuel Station (Full Tank)",
+      "amount": 75,
+      "categoryId": "cat-petrol",
+      "date": "2026-09-02T18:00:00Z",
+      "paidBy": "user-me",
+      "isSplit": false,
+      "splitDetails": null
+    },
+    {
+      "id": "exp-4",
+      "title": "Italian Bistro Dinner",
+      "amount": 120,
+      "categoryId": "cat-dining",
+      "date": "2026-09-02T21:00:00Z",
+      "paidBy": "friend-2",
+      "isSplit": true,
+      "groupId": "group-trip",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 30
+          },
+          {
+            "userId": "friend-2",
+            "amount": 30
+          },
+          {
+            "userId": "friend-3",
+            "amount": 30
+          },
+          {
+            "userId": "friend-4",
+            "amount": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": "exp-5",
+      "title": "High-speed Fiber WiFi Bill",
+      "amount": 60,
+      "categoryId": "cat-bills",
+      "date": "2026-09-03T07:30:00Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 30
+          },
+          {
+            "userId": "friend-1",
+            "amount": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": "exp-6",
+      "title": "Pharmacy & Multivitamins",
+      "amount": 42,
+      "categoryId": "cat-health",
+      "date": "2026-09-03T08:15:00Z",
+      "paidBy": "user-me",
+      "isSplit": false,
+      "splitDetails": null
+    },
+    {
+      "id": "exp-1788406517000",
+      "title": "Organic Groceries Restock",
+      "amount": 90,
+      "categoryId": "cat-grocery",
+      "date": "2026-09-03T03:35:17.000Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": null,
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 30
+          },
+          {
+            "userId": "friend-1",
+            "amount": 30
+          },
+          {
+            "userId": "friend-3",
+            "amount": 30
+          }
+        ]
+      }
+    }
+  ],
+  "settlements": [
+    {
+      "id": "set-1788406520886",
+      "fromUserId": "user-me",
+      "toUserId": "friend-2",
+      "amount": 30,
+      "date": "2026-09-03T03:35:20.886Z"
+    }
+  ]
+}
