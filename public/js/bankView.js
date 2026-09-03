@@ -4,6 +4,28 @@ const bankView = {
 
   currentMobileLinkData: null,
 
+  firebaseConfirmationResult: null,
+
+  initFirebase() {
+    if (typeof firebase !== "undefined" && typeof FIREBASE_CONFIG !== "undefined") {
+      try {
+        if (!firebase.apps.length && isFirebaseConfigured()) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+      } catch (err) {
+        console.warn("Firebase initialization skipped:", err);
+      }
+    }
+  },
+
+  toggleFirebaseHelp() {
+    const box = document.getElementById("firebaseHelpBox");
+    if (box) {
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+  },
+
+
   updateVpaPreview() {
     const phoneInput = document.getElementById("linkMobileNumber");
     const vpaInput = document.getElementById("linkUpiVpa");
@@ -21,17 +43,51 @@ const bankView = {
     const phone = phoneInput ? phoneInput.value.trim() : "";
     const bankName = bankSelect ? bankSelect.value : "HDFC Bank";
     const upiId = vpaInput ? vpaInput.value.trim() : "";
+    const cleanPhone = phone.replace(/[^0-9]/g, "").slice(-10);
 
-    if (!phone || phone.replace(/[^0-9]/g, "").length < 10) {
+    if (!cleanPhone || cleanPhone.length < 10) {
       app.showToast("❌ Please enter a valid 10-digit mobile number");
       return;
     }
 
+    // CHECK IF REAL FIREBASE KEYS ARE CONFIGURED
+    if (typeof isFirebaseConfigured === "function" && isFirebaseConfigured()) {
+      try {
+        this.initFirebase();
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+            size: "invisible"
+          });
+        }
+        app.showToast("⏳ Contacting Google Firebase SMS Gateway...");
+        const confirmationResult = await firebase.auth().signInWithPhoneNumber("+91" + cleanPhone, window.recaptchaVerifier);
+        this.firebaseConfirmationResult = confirmationResult;
+        this.currentMobileLinkData = { phone: cleanPhone, bankName, upiId };
+
+        const stepInput = document.getElementById("otpStepInput");
+        const stepVerify = document.getElementById("otpStepVerify");
+        const targetPhone = document.getElementById("otpTargetPhone");
+        const demoBadge = document.getElementById("demoOtpBadge");
+
+        if (targetPhone) targetPhone.textContent = `+91 ${cleanPhone}`;
+        if (demoBadge) demoBadge.textContent = "REAL SMS SENT TO PHONE";
+        if (stepInput) stepInput.style.display = "none";
+        if (stepVerify) stepVerify.style.display = "block";
+
+        app.showToast(`🔥 Real SMS OTP sent to +91 ${cleanPhone} via Google Firebase!`);
+        return;
+      } catch (fbErr) {
+        console.warn("Firebase Phone Auth error, falling back to instant test OTP:", fbErr);
+        app.showToast("⚠️ Firebase note: Falling back to Instant Test OTP (Check API key)");
+      }
+    }
+
+    // FALLBACK / PROTOTYPE TEST MODE
     try {
       const res = await fetch("/api/bank/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, bankName, upiId })
+        body: JSON.stringify({ phone: cleanPhone, bankName, upiId })
       });
       const data = await res.json();
       if (data.success) {
@@ -46,12 +102,12 @@ const bankView = {
         if (stepInput) stepInput.style.display = "none";
         if (stepVerify) stepVerify.style.display = "block";
 
-        app.showToast(`📩 OTP sent via SMS to +91 ${data.phone}`);
+        app.showToast(`📩 Test OTP generated: Use ${data.demoOtp} (or add Firebase key for real SMS)`);
       } else {
         app.showToast("❌ " + data.error);
       }
     } catch (err) {
-      app.showToast("❌ Error sending verification OTP");
+      app.showToast("❌ Error generating verification OTP");
     }
   },
 
@@ -80,6 +136,18 @@ const bankView = {
     }
 
     if (!this.currentMobileLinkData) return;
+
+    // IF USING REAL FIREBASE CONFIRMATION
+    if (this.firebaseConfirmationResult) {
+      try {
+        app.showToast("⏳ Verifying OTP with Google Firebase...");
+        await this.firebaseConfirmationResult.confirm(otp);
+        app.showToast("✓ Firebase confirmed code!");
+      } catch (fbErr) {
+        app.showToast("❌ Invalid Firebase SMS code. Please try again.");
+        return;
+      }
+    }
 
     try {
       const res = await fetch("/api/bank/verify-otp", {

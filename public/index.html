@@ -1014,6 +1014,20 @@
             </p>
           </div>
 
+          <!-- Firebase Phone Auth Badge & Guide -->
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 0.8rem; color: #a7f3d0;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span>🔥 <strong>Google Firebase Phone Auth:</strong> 10,000 Free SMS/Month</span>
+              <a href="#" onclick="bankView.toggleFirebaseHelp(); return false;" style="color: #6ee7b7; text-decoration: underline; font-size: 0.76rem;">Setup Guide (60s)</a>
+            </div>
+            <div id="firebaseHelpBox" style="display: none; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.76rem; color: #cbd5e1; line-height: 1.5;">
+              To send real SMS to your phone: Visit <a href="https://console.firebase.google.com/" target="_blank" style="color: #818cf8; text-decoration: underline;">console.firebase.google.com</a> (100% Free) ➔ Click "Authentication" ➔ "Sign-in method" ➔ Enable "Phone" ➔ Paste keys in <code>public/js/firebaseConfig.js</code>.
+            </div>
+          </div>
+
+          <!-- Invisible Google Recaptcha Container -->
+          <div id="recaptcha-container"></div>
+
           <div class="form-group">
             <label class="form-label">PhonePe Registered Mobile Number</label>
             <div class="phone-input-wrapper">
@@ -1353,6 +1367,10 @@
   <script src="js/splitView.js"></script>
   <script src="js/aiView.js"></script>
   <script src="js/bankView.js"></script>
+  <!-- Firebase Phone Authentication SDK (10,000 Free SMS / Month by Google) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="js/firebaseConfig.js"></script>
   <script src="js/tourView.js"></script>
   <script src="js/app.js"></script>
 </body>
