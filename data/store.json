@@ -439,6 +439,14 @@
   "pendingBankTransactions": [],
   "notifications": [
     {
+      "id": "notif-1788415641054",
+      "title": "📱 PhonePe & HDFC Bank Linked (+91 9876543210)",
+      "message": "Mobile number verified via SMS OTP. Linked PhonePe VPA (9876543210@ybl) and HDFC Bank A/C ••••3210 for real-time debit monitoring.",
+      "timestamp": "2026-09-03T06:07:21.054Z",
+      "type": "PHONEPE_LINKED",
+      "targetGroup": "All Accounts"
+    },
+    {
       "id": "notif-1788411366565",
       "title": "📱 PhonePe & HDFC Bank Linked (+91 9876543210)",
       "message": "Mobile number verified via SMS OTP. Linked PhonePe VPA (9876543210@ybl) and HDFC Bank A/C ••••3210 for real-time debit monitoring.",

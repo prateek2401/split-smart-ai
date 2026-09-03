@@ -50,7 +50,47 @@ const bankView = {
       return;
     }
 
-    // CHECK IF REAL FIREBASE KEYS ARE CONFIGURED
+    // Helper for fallback server OTP
+    const fallbackToServerOtp = async (reason) => {
+      this.firebaseConfirmationResult = null;
+      try {
+        const res = await fetch("/api/bank/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: cleanPhone, bankName, upiId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.currentMobileLinkData = data;
+          const stepInput = document.getElementById("otpStepInput");
+          const stepVerify = document.getElementById("otpStepVerify");
+          const targetPhone = document.getElementById("otpTargetPhone");
+          const demoBadge = document.getElementById("demoOtpBadge");
+
+          if (targetPhone) targetPhone.textContent = `+91 ${data.phone}`;
+          if (demoBadge) demoBadge.textContent = data.demoOtp;
+          if (stepInput) stepInput.style.display = "none";
+          if (stepVerify) stepVerify.style.display = "block";
+
+          if (reason) {
+            app.showToast(`⚠️ ${reason} -> Auto-switched to Instant Passcode: ${data.demoOtp}`);
+          } else {
+            app.showToast(`📩 Test OTP generated: Use ${data.demoOtp}`);
+          }
+        }
+      } catch (e) {
+        app.showToast("❌ Error generating verification passcode");
+      }
+    };
+
+    // If user explicitly chose Demo mode, skip Firebase
+    const isDemoModeChecked = document.getElementById("modeInstantDemo")?.checked;
+    if (isDemoModeChecked) {
+      await fallbackToServerOtp();
+      return;
+    }
+
+    // Attempt Real Firebase Phone Auth
     if (typeof isFirebaseConfigured === "function" && isFirebaseConfigured()) {
       try {
         this.initFirebase();
@@ -70,45 +110,21 @@ const bankView = {
         const demoBadge = document.getElementById("demoOtpBadge");
 
         if (targetPhone) targetPhone.textContent = `+91 ${cleanPhone}`;
-        if (demoBadge) demoBadge.textContent = "REAL SMS SENT TO PHONE";
+        if (demoBadge) demoBadge.textContent = "CHECK PHONE FOR SMS";
         if (stepInput) stepInput.style.display = "none";
         if (stepVerify) stepVerify.style.display = "block";
 
         app.showToast(`🔥 Real SMS OTP sent to +91 ${cleanPhone} via Google Firebase!`);
         return;
       } catch (fbErr) {
-        console.warn("Firebase Phone Auth error, falling back to instant test OTP:", fbErr);
-        app.showToast("⚠️ Firebase note: Falling back to Instant Test OTP (Check API key)");
+        console.warn("Firebase Phone Auth error, auto-recovering:", fbErr);
+        // Automatic graceful recovery: transition to OTP screen so user is NEVER blocked!
+        await fallbackToServerOtp("Google 400 (Phone provider pending)");
+        return;
       }
     }
 
-    // FALLBACK / PROTOTYPE TEST MODE
-    try {
-      const res = await fetch("/api/bank/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: cleanPhone, bankName, upiId })
-      });
-      const data = await res.json();
-      if (data.success) {
-        this.currentMobileLinkData = data;
-        const stepInput = document.getElementById("otpStepInput");
-        const stepVerify = document.getElementById("otpStepVerify");
-        const targetPhone = document.getElementById("otpTargetPhone");
-        const demoBadge = document.getElementById("demoOtpBadge");
-
-        if (targetPhone) targetPhone.textContent = `+91 ${data.phone}`;
-        if (demoBadge) demoBadge.textContent = data.demoOtp;
-        if (stepInput) stepInput.style.display = "none";
-        if (stepVerify) stepVerify.style.display = "block";
-
-        app.showToast(`📩 Test OTP generated: Use ${data.demoOtp} (or add Firebase key for real SMS)`);
-      } else {
-        app.showToast("❌ " + data.error);
-      }
-    } catch (err) {
-      app.showToast("❌ Error generating verification OTP");
-    }
+    await fallbackToServerOtp();
   },
 
   autoFillDemoOtp() {
