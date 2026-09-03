@@ -436,6 +436,14 @@
   "pendingBankTransactions": [],
   "notifications": [
     {
+      "id": "notif-1788410690094",
+      "title": "⚙️ Payment Modes & Banks Updated",
+      "message": "Active auto-sync monitoring enabled for 1 payment sources.",
+      "timestamp": "2026-09-03T04:44:50.094Z",
+      "type": "PAYMENT_SOURCES_UPDATED",
+      "targetGroup": "Sync Settings"
+    },
+    {
       "id": "notif-1788410642129",
       "title": "⚙️ Payment Modes & Banks Updated",
       "message": "Active auto-sync monitoring enabled for 10 payment sources.",
@@ -735,15 +743,6 @@
     }
   ],
   "activePaymentSources": [
-    "phonepe",
-    "gpay",
-    "paytm",
-    "amazonpay",
-    "cred",
-    "hdfc",
-    "sbi",
-    "icici",
-    "axis",
-    "credit_cards"
+    "phonepe"
   ]
 }

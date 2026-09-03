@@ -469,9 +469,13 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log("=======================================================");
-  console.log(`🚀 SplitSmart AI Server running at http://localhost:${PORT}`);
-  console.log("📊 Auth, Multi-Month Allocations & Bank Sync Active");
-  console.log("=======================================================");
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log("=======================================================");
+    console.log(`🚀 SplitSmart AI Server running at http://localhost:${PORT}`);
+    console.log("📊 Auth, Multi-Month Allocations & Bank Sync Active");
+    console.log("=======================================================");
+  });
+}
+
+module.exports = app;

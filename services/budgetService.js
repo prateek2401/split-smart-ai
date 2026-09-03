@@ -1,15 +1,47 @@
 const fs = require("fs");
 const path = require("path");
 
-const STORE_PATH = path.join(__dirname, "..", "data", "store.json");
+const DEFAULT_STORE_PATH = path.join(__dirname, "..", "data", "store.json");
+const VERCEL_STORE_PATH = path.join("/tmp", "store.json");
+
+let inMemoryStore = null;
+
+function getStorePath() {
+  if (process.env.VERCEL) {
+    if (!fs.existsSync(VERCEL_STORE_PATH)) {
+      try {
+        const seed = fs.readFileSync(DEFAULT_STORE_PATH, "utf-8");
+        fs.writeFileSync(VERCEL_STORE_PATH, seed, "utf-8");
+      } catch (e) {
+        return DEFAULT_STORE_PATH;
+      }
+    }
+    return VERCEL_STORE_PATH;
+  }
+  return DEFAULT_STORE_PATH;
+}
 
 function readStore() {
-  const raw = fs.readFileSync(STORE_PATH, "utf-8");
-  return JSON.parse(raw);
+  try {
+    const p = getStorePath();
+    const raw = fs.readFileSync(p, "utf-8");
+    inMemoryStore = JSON.parse(raw);
+    return inMemoryStore;
+  } catch (err) {
+    if (inMemoryStore) return inMemoryStore;
+    const raw = fs.readFileSync(DEFAULT_STORE_PATH, "utf-8");
+    return JSON.parse(raw);
+  }
 }
 
 function writeStore(data) {
-  fs.writeFileSync(STORE_PATH, JSON.stringify(data, null, 2), "utf-8");
+  inMemoryStore = data;
+  try {
+    const p = getStorePath();
+    fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    // Graceful fallback for read-only serverless
+  }
 }
 
 function ensureMonthlyBudgets(store, month) {
