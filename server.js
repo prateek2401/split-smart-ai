@@ -4,6 +4,7 @@ const path = require('path');
 const budgetService = require('./services/budgetService');
 const splitService = require('./services/splitService');
 const aiPredictorService = require('./services/aiPredictorService');
+const bankService = require('./services/bankService');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -115,6 +116,90 @@ app.get('/api/ai/predict', (req, res) => {
   try {
     const predictions = aiPredictorService.getAIPredictions();
     res.json({ success: true, data: predictions });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ----------------------------------------------------
+// Bank Application Webhook & Automated Sync Endpoints
+// ----------------------------------------------------
+
+// Inbound webhook from bank or open banking aggregator (Plaid / Setu / Teller)
+app.post('/api/bank/webhook', (req, res) => {
+  try {
+    const { bankName, merchant, amount, rawDescription, date } = req.body;
+    if (!amount || Number(amount) <= 0) {
+      return res.status(400).json({ success: false, error: 'Valid debit amount required' });
+    }
+    const item = bankService.receiveWebhookTransaction({ bankName, merchant, amount, rawDescription, date });
+    res.json({ success: true, message: 'Bank transaction received and categorized', data: item });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Simulate a bank debit (Rent, Utilities, Grocery)
+app.post('/api/bank/simulate', (req, res) => {
+  try {
+    const { type } = req.body;
+    const presets = {
+      rent: {
+        bankName: 'Chase Bank ••4829',
+        merchant: 'Apex Property Management (Apartment Rent)',
+        amount: 1500.00,
+        rawDescription: 'ACH DEBIT APEX PROP MGMT RENT 09/26'
+      },
+      wifi: {
+        bankName: 'Capital One ••1904',
+        merchant: 'ConEd & HighSpeed Fiber Utilities',
+        amount: 85.00,
+        rawDescription: 'DIRECT DEBIT CONED & INTERNET UTILITY'
+      },
+      groceries: {
+        bankName: 'Chase Bank ••4829',
+        merchant: 'Trader Joe\'s Supermarket Restock',
+        amount: 135.50,
+        rawDescription: 'POS DEBIT TRADER JOES #412'
+      }
+    };
+    const chosen = presets[type] || presets.rent;
+    const item = bankService.receiveWebhookTransaction(chosen);
+    res.json({ success: true, message: `Simulated bank debit for ${item.merchant}`, data: item });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get pending bank transactions awaiting user 1-click review
+app.get('/api/bank/pending', (req, res) => {
+  try {
+    const pending = bankService.getPendingTransactions();
+    res.json({ success: true, data: pending });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Process a pending bank transaction (1-click split, personal, or dismiss)
+app.post('/api/bank/process', (req, res) => {
+  try {
+    const { transactionId, action, customGroupId, customCategoryId } = req.body;
+    if (!transactionId || !action) {
+      return res.status(400).json({ success: false, error: 'transactionId and action (SPLIT, PERSONAL, DISMISS) required' });
+    }
+    const result = bankService.processBankTransaction({ transactionId, action, customGroupId, customCategoryId });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get roommate notification feed
+app.get('/api/notifications', (req, res) => {
+  try {
+    const notifs = bankService.getNotifications();
+    res.json({ success: true, data: notifs });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

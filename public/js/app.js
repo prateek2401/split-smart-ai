@@ -27,6 +27,7 @@ const app = {
       budgetView.init(this.state.budget);
       splitView.init(this.state.splitwise);
       aiView.init(this.state.ai);
+      if (typeof bankView !== 'undefined') await bankView.init();
       this.populateCategorySelect();
     } catch (err) {
       console.error('Failed to load application data:', err);

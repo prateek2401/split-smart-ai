@@ -33,6 +33,9 @@
         <button class="btn btn-secondary btn-sm" onclick="app.openSettleModal()">
           <span>⚡</span> Settle Up
         </button>
+        <button class="btn btn-secondary btn-sm" onclick="bankView.simulateTransaction('rent')" title="Simulate bank debit webhook">
+          <span>🏦</span> Simulate Bank Pay
+        </button>
         <div class="user-pill">
           <img class="user-avatar" id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Prateek" alt="User Avatar">
           <span class="user-name" id="userName">Prateek</span>
@@ -62,6 +65,9 @@
 
     <!-- TAB 1: OVERVIEW DASHBOARD -->
     <main id="tab-dashboard" class="tab-pane active">
+      <!-- Live Bank Webhook Detection Alert -->
+      <div id="bankAlertsContainer" style="margin-bottom: 24px;"></div>
+
       <!-- High Level Metrics -->
       <div class="grid-4" style="margin-bottom: 24px;">
         <div class="stat-card">
@@ -170,6 +176,20 @@
         </div>
         <div class="transaction-list" id="dashRecentExpenses">
           <!-- Dynamic recent transactions -->
+        </div>
+      </div>
+
+      <!-- Roommate Notification Broadcast Feed -->
+      <div class="card" style="margin-top: 24px;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">📢 Roommate Broadcast Feed & Bank Alerts</h2>
+            <p class="card-subtitle">Live notifications sent to all group members upon bill payment</p>
+          </div>
+          <span class="category-badge badge-variable">⚡ Live Sync Active</span>
+        </div>
+        <div id="roommateNotificationFeed" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Roommate notifications -->
         </div>
       </div>
     </main>
@@ -513,6 +533,7 @@
   <script src="js/budgetView.js"></script>
   <script src="js/splitView.js"></script>
   <script src="js/aiView.js"></script>
+  <script src="js/bankView.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

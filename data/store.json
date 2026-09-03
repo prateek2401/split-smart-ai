@@ -272,6 +272,33 @@
           }
         ]
       }
+    },
+    {
+      "id": "exp-1788406906902",
+      "title": "Apex Property Management (Apartment Rent)",
+      "amount": 1500,
+      "categoryId": "cat-rent",
+      "date": "2026-09-03T03:41:46.902Z",
+      "paidBy": "user-me",
+      "isSplit": true,
+      "groupId": "group-flat",
+      "splitDetails": {
+        "splitType": "EQUAL",
+        "shares": [
+          {
+            "userId": "user-me",
+            "amount": 500
+          },
+          {
+            "userId": "friend-1",
+            "amount": 500
+          },
+          {
+            "userId": "friend-3",
+            "amount": 500
+          }
+        ]
+      }
     }
   ],
   "settlements": [
@@ -281,6 +308,40 @@
       "toUserId": "friend-2",
       "amount": 30,
       "date": "2026-09-03T03:35:20.886Z"
+    }
+  ],
+  "pendingBankTransactions": [
+    {
+      "id": "bank-tx-1788406910248",
+      "bankName": "Chase Bank ••4829",
+      "merchant": "Apex Property Management (Apartment Rent)",
+      "amount": 1500,
+      "date": "2026-09-03T03:41:50.248Z",
+      "rawDescription": "ACH DEBIT APEX PROP MGMT RENT 09/26",
+      "detectedCategory": "cat-rent",
+      "suggestedGroup": "group-flat",
+      "suggestedGroupName": "Flat #402 Roommates",
+      "splitCount": 3,
+      "perPersonShare": 500,
+      "status": "PENDING_REVIEW"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1788406906902",
+      "title": "Auto-Sync: Apex Property Management (Apartment Rent) Paid",
+      "message": "Prateek's bank paid $1500.00. $500.00 split with Flat #402 Roommates.",
+      "timestamp": "2026-09-03T03:41:46.902Z",
+      "type": "BANK_SPLIT_ADDED",
+      "targetGroup": "Flat #402 Roommates"
+    },
+    {
+      "id": "notif-1",
+      "title": "Apartment Monthly Rent Logged",
+      "message": "Prateek paid $1,500.00 for Rent. $500.00 added to Flat #402 balance.",
+      "timestamp": "2026-09-02T10:01:00Z",
+      "type": "EXPENSE_ADDED",
+      "targetGroup": "Flat #402 Roommates"
     }
   ]
 }
